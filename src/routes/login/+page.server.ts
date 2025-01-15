@@ -7,12 +7,8 @@ export const actions = {
 		const email = data.get('email')
 		const password = data.get('password')
 
-		if (email == null) {
-
-		}
-
 		const userId = await isValidUser(email!.toString(), password!.toString())
-		console.log(userId)
+
 		if (userId != null) {
 			const token = generateSessionToken()
 			const session = await createSession(token, userId)

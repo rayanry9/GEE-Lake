@@ -36,9 +36,11 @@
 		"vite": "^5.4.11"
 	},
 	"dependencies": {
-		"@google/earthengine": "^1.4.4",
+		"@google/earthengine": "^1.4.5",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
-		"postgres": "^3.4.5"
+		"leaflet": "^1.9.4",
+		"postgres": "^3.4.5",
+		"shpjs": "^6.1.0"
 	}
 }

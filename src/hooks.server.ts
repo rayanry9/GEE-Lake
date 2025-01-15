@@ -1,4 +1,4 @@
-import "$lib/server/gee/init.svelte";
+import "$lib/server/gee/init.svelte"
 import "$lib/server/db/init.svelte"
 import { type Handle } from "@sveltejs/kit";
 import { deleteSessionTokenCookie, setSessionTokenCookie, validateSessionToken } from "$lib/server/db/auth.svelte";
