@@ -3,6 +3,7 @@ export const rgbVisParams = {
 	min: 0,
 	max: 0.25
 }
+
 export const dataVisParams = {
 	min: 2,
 	max: 5,

@@ -1,35 +1,17 @@
 import ee from "@google/earthengine"
 import privateKey from "$lib/../../PRIVATE_KEY.json"
-import { writable } from "svelte/store"
+import { setAOI } from "./inputs";
 
-export const isInitiazlized = writable(false)
-
-var image
-
-var visParams = {
-	bands: ['temperature_2m'],
-	min: 229,
-	max: 304,
-	palette: ['#000004', '#410967', '#932567', '#f16e43', '#fcffa4']
-};
 
 ee.data.authenticateViaPrivateKey(privateKey,
 	() => {
 		ee.initialize(null, null, () => {
-			isInitiazlized.set(true)
-			image = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY_AGGR')
-				.filterDate('2023-01-01', '2023-02-01')
-				.first();
 
-			var ameenpur_lake_shapefile = ee.FeatureCollection("projects/ee-ma24btech11018/assets/Ameenpur_Lake_shapefile")
-			image = image.clip(ameenpur_lake_shapefile)
+			setAOI(ee.FeatureCollection("projects/ee-ma24btech11018/assets/Ameenpur_Lake_shapefile"))
+
 		})
 	},
 	(e) => {
 		console.error("Authentication Error: " + e)
 	}
 )
-
-export function getUrlFormat() {
-	return image.getMapId(visParams).urlFormat
-}

@@ -1,8 +1,8 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { getUrlFormat } from "$lib/server/gee/init.svelte";
+import { getInitialClassificationFormatUrl } from "$lib/server/gee/visualization";
 
 
 export const GET: RequestHandler = ({ url }) => {
-	return json({ url_format: getUrlFormat() })
+	return json({ url_format: getInitialClassificationFormatUrl() })
 }

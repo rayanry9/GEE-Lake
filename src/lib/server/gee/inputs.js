@@ -1,6 +1,6 @@
 import ee from "@google/earthengine"
 
-var AOI
+export var AOI
 
 export function getAOI() {
 	return AOI

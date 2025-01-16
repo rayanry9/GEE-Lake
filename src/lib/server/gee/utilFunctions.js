@@ -1,3 +1,5 @@
+import { getAOI } from "./inputs";
+
 export function s2scale(image) {
 	return image.divide(10000).copyProperties(image, ["system:time_start"]);
 }
@@ -8,7 +10,7 @@ export function applyScaleFactors(image) {
 }
 
 export function clipToAOI(image) {
-	return image.clip(AOI);
+	return image.clip(getAOI());
 }
 
 export function resample10m(image) {
