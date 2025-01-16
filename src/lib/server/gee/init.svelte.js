@@ -7,7 +7,6 @@ export const isInitiazlized = writable(false)
 var roi
 var image
 
-
 var visParams = {
 	bands: ['temperature_2m'],
 	min: 229,
@@ -23,7 +22,9 @@ ee.data.authenticateViaPrivateKey(privateKey,
 			image = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY_AGGR')
 				.filterDate('2023-01-01', '2023-02-01')
 				.first();
-			console.log(image.getMapId())
+
+			var ameenpur_lake_shapefile = ee.FeatureCollection("projects/ee-ma24btech11018/assets/Ameenpur_Lake_shapefile")
+			image = image.clip(ameenpur_lake_shapefile)
 		})
 	},
 	(e) => {
@@ -35,6 +36,5 @@ export function getBounds() {
 	return roi
 }
 export function getUrlFormat() {
-	return image.getMap(visParams).urlFormat
+	return image.getMapId(visParams).urlFormat
 }
-

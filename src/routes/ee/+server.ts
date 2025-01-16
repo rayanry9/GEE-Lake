@@ -9,6 +9,5 @@ isInitiazlized.subscribe((val) => {
 })
 
 export const GET: RequestHandler = ({ url }) => {
-
 	return json({ url_format: getUrlFormat(), bounds: getBounds() })
 }

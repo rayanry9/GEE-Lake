@@ -4,7 +4,7 @@
 	let { children } = $props();
 </script>
 
-<Navbar>
+<Navbar class="bg-primary-100">
 	<NavBrand href="/">
 		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
 			GEE Water
