@@ -4,7 +4,6 @@ import { writable } from "svelte/store"
 
 export const isInitiazlized = writable(false)
 
-var roi
 var image
 
 var visParams = {
@@ -18,7 +17,6 @@ ee.data.authenticateViaPrivateKey(privateKey,
 	() => {
 		ee.initialize(null, null, () => {
 			isInitiazlized.set(true)
-			roi = ee.Geometry.Point([-122.0838, 37.4220])
 			image = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY_AGGR')
 				.filterDate('2023-01-01', '2023-02-01')
 				.first();
@@ -32,9 +30,6 @@ ee.data.authenticateViaPrivateKey(privateKey,
 	}
 )
 
-export function getBounds() {
-	return roi
-}
 export function getUrlFormat() {
 	return image.getMapId(visParams).urlFormat
 }
