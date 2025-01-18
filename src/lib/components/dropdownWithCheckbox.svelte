@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { IndicesData } from '$lib/mapData.svelte';
+	import { IndicesData } from '$lib/mapData';
 
 	let dropdownState = $state(false);
 	let indiceState = $state<Array<boolean>>([]);

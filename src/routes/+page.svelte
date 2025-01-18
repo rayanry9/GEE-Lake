@@ -1,12 +1,28 @@
 <script lang="ts">
 	import type { Action } from 'svelte/action';
-	import { LakeData } from '$lib/mapData.svelte';
+	import { LakeData, LakesCode } from '$lib/mapData';
 	import DropdownWithCheckbox from '$lib/components/dropdownWithCheckbox.svelte';
-	import { createMap } from '$lib/mapFunctions.svelte';
+	import { createMap, setCurrentLakeId, setEndDate, setStartDate } from '$lib/mapFunctions.svelte';
+
+	let startDate = $state('2025-01-01');
+	let endDate = $state('2025-01-12');
+	let currentLakeId = $state<LakesCode>(LakesCode.Ammenpur);
+
+	$effect(() => {
+		setCurrentLakeId(currentLakeId);
+	});
+	$effect(() => {
+		setStartDate(startDate);
+	});
+	$effect(() => {
+		setEndDate(endDate);
+	});
+
 	const attachMap: Action = (node) => {
 		createMap(node);
 	};
 	let sidebarShow = $state(true);
+	console.log();
 </script>
 
 <div class="relative flex h-full flex-row overflow-x-clip">
@@ -27,9 +43,9 @@
 		></div>
 		<div class="space-y-2">
 			<p class="font-semibold">Lakes</p>
-			<select class="w-full text-sm">
-				{#each LakeData as item}
-					<option>{item.name}</option>
+			<select class="w-full text-sm" bind:value={currentLakeId}>
+				{#each LakeData as item, idx}
+					<option value={idx}>{item.name}</option>
 				{/each}
 			</select>
 		</div>
@@ -37,11 +53,25 @@
 		<div class="flex flex-row space-x-6">
 			<div class="grow space-y-2">
 				<p class="font-semibold">Start Date</p>
-				<input type="date" class="w-full text-sm" />
+				<input
+					type="date"
+					min="2018-01-01"
+					max={endDate}
+					bind:value={startDate}
+					required
+					class="w-full text-sm"
+				/>
 			</div>
 			<div class="grow space-y-2">
 				<p class="font-semibold">End Date</p>
-				<input type="date" class="w-full text-sm" />
+				<input
+					type="date"
+					min="2018-01-01"
+					max={new Date().toISOString().slice(0, 10)}
+					required
+					bind:value={endDate}
+					class="w-full text-sm"
+				/>
 			</div>
 		</div>
 

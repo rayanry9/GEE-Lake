@@ -35,10 +35,10 @@ function classification(image: any) {
 		.set("system:time_start", image.get('system:time_start'));
 }
 
-export function getInitialClassification(AOI: any, startDateUser: string, endDate: any, cloudCover: number, cloudCoverUser: number) {
-	return classification(getStartImage(AOI, startDateUser, endDate, cloudCover, cloudCoverUser)).clip(AOI)
+export function getInitialClassification(AOI: any, startDateUser: string, endDate: any, cloudCover: number, cloudCoverUser: number, indices: string) {
+	return classification(getStartImage(AOI, startDateUser, endDate, cloudCover, cloudCoverUser, indices)).clip(AOI)
 }
 
-export function getFinalClassification(AOI: any, endDateUser: string, endDate: any, cloudCover: number, cloudCoverUser: number) {
-	return classification(getRecentImage(AOI, endDateUser, endDate, cloudCover, cloudCoverUser)).clip(AOI)
+export function getFinalClassification(AOI: any, endDateUser: string, endDate: any, cloudCover: number, cloudCoverUser: number, indices: string) {
+	return classification(getRecentImage(AOI, endDateUser, endDate, cloudCover, cloudCoverUser, indices)).clip(AOI)
 }

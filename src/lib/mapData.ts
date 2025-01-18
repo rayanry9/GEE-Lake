@@ -1,8 +1,12 @@
 export const enum EETileLayerType {
-	StartImaage = 0,
-	FinalImage = 1,
+	StartImage = 0,
+	RecentImage = 1,
 	InitialClassification = 2,
 	FinalClassification = 3
+}
+export const enum LakesCode {
+	Ammenpur = 0,
+	Shabunikunta = 1,
 }
 
 export const LakeData = [
@@ -17,6 +21,14 @@ export const LakeData = [
 		geeAssetPath: "projects/ee-ma24btech11018/assets/Shabunikunta_Lake_Shapefile"
 	}
 ]
+export const enum IndicesCode {
+	NDVI = 0,
+	mNDWI = 1,
+	AWEIsh = 2,
+	AWEInsh = 3,
+	NDBI = 4,
+	BSI = 5
+}
 
 export const IndicesData = [
 	"NDVI",
@@ -26,3 +38,7 @@ export const IndicesData = [
 	"NDBI",
 	"BSI"
 ]
+
+export interface TileResponseTypeAPI {
+	urlFormat: string
+}
