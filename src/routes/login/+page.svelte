@@ -1,20 +1,53 @@
 <script lang="ts">
-	import { Button, Card, Input, Label } from 'flowbite-svelte';
+	import { page } from '$app/state';
+	import { fade } from 'svelte/transition';
+	let state = $state(false);
+
+	if (page.form != null) {
+		state = !page.form.success;
+		setTimeout(() => {
+			state = false;
+		}, 2000);
+	}
 </script>
 
 <div class="flex w-full grow flex-row">
-	<Card class="mx-auto h-fit self-center">
-		<form class="flex flex-col space-y-6 pb-6" method="POST" action="/login">
-			<h3>Sign in to the Platform</h3>
-			<Label class="space-y-2">
+	<div class="mx-auto h-fit self-center rounded-lg bg-slate-50 px-8 py-8">
+		<form class="flex flex-col space-y-6 pb-2" method="POST" action="/login">
+			<p class="lg mr-32 opacity-60">Sign in to the Platform</p>
+			<div class="flex flex-col space-y-2 text-sm">
 				<span>Email</span>
-				<Input type="email" name="email" placeholder="name@company.com" required />
-			</Label>
-			<Label class="space-y-2">
+				<input
+					type="email"
+					name="email"
+					placeholder="name@company.com"
+					class="rounded-lg bg-slate-50 text-sm"
+					required
+				/>
+			</div>
+			<div class="flex flex-col space-y-2 text-sm">
 				<span>Your Password</span>
-				<Input type="password" name="password" placeholder="*****" required />
-			</Label>
-			<Button type="submit" class="w-full">Login to your Account</Button>
+				<input
+					class="rounded-lg bg-slate-50 text-sm"
+					type="password"
+					name="password"
+					placeholder="*****"
+					required
+				/>
+			</div>
+			<button
+				type="submit"
+				class="text-md w-full rounded-lg bg-indigo-500 py-3 text-white hover:bg-indigo-700"
+				>Login to your Account</button
+			>
 		</form>
-	</Card>
+	</div>
 </div>
+{#if state}
+	<div
+		transition:fade
+		class="absolute bottom-10 w-fit self-center rounded-lg bg-red-500 px-6 py-4 text-white"
+	>
+		Invalid User Credentials
+	</div>
+{/if}

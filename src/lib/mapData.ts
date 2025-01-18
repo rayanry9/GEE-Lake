@@ -1,9 +1,21 @@
-export const enum EETileLayerType {
-	StartImage = 0,
-	RecentImage = 1,
-	InitialClassification = 2,
-	FinalClassification = 3
+export const cloudCover = 30
+
+export const enum EELayerType {
+	FinalClassification = 0,
+	InitialClassification = 1,
+	StartImage = 2,
+	RecentImage = 3,
+	FromWater = 4,
+	ToWater = 5
 }
+export const LayersType = [
+	"Final Classification",
+	"Initial Classificaiton",
+	"Start Image",
+	"Recent Image",
+	"From Water",
+	"To Water"
+]
 export const enum LakesCode {
 	Ammenpur = 0,
 	Shabunikunta = 1,
@@ -39,6 +51,12 @@ export const IndicesData = [
 	"BSI"
 ]
 
+
 export interface TileResponseTypeAPI {
 	urlFormat: string
+}
+
+export enum WaterDataType {
+	ToWater = 0,
+	FromWater = 1
 }

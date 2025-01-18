@@ -1,12 +1,19 @@
 <script lang="ts">
 	import type { Action } from 'svelte/action';
-	import { LakeData, LakesCode } from '$lib/mapData';
+	import { EELayerType, LakeData, LakesCode, LayersType } from '$lib/mapData';
 	import DropdownWithCheckbox from '$lib/components/dropdownWithCheckbox.svelte';
-	import { createMap, setCurrentLakeId, setEndDate, setStartDate } from '$lib/mapFunctions.svelte';
+	import {
+		createMap,
+		setCurrentLakeId,
+		setCurrentLayerType,
+		setEndDate,
+		setStartDate
+	} from '$lib/mapFunctions.svelte';
 
 	let startDate = $state('2025-01-01');
 	let endDate = $state('2025-01-12');
 	let currentLakeId = $state<LakesCode>(LakesCode.Ammenpur);
+	let currentLayerType = $state<EELayerType>(EELayerType.FinalClassification);
 
 	$effect(() => {
 		setCurrentLakeId(currentLakeId);
@@ -16,6 +23,9 @@
 	});
 	$effect(() => {
 		setEndDate(endDate);
+	});
+	$effect(() => {
+		setCurrentLayerType(currentLayerType);
 	});
 
 	const attachMap: Action = (node) => {
@@ -33,7 +43,7 @@
 	<div
 		class="absolute transition-all duration-300 ease-in-out {sidebarShow
 			? 'right-0'
-			: 'right-[-25rem]'}  top-4 z-[1000] flex w-[25rem] flex-col space-y-8 bg-stone-50 px-10 py-8 outline outline-[1px] outline-gray-700"
+			: 'right-[-25rem]'} top-4 z-[1000] flex w-[25rem] flex-col space-y-6 bg-stone-50 px-10 pb-10 outline outline-[1px] outline-gray-700"
 	>
 		<div
 			onclick={() => {
@@ -73,6 +83,15 @@
 					class="w-full text-sm"
 				/>
 			</div>
+		</div>
+
+		<div class="grow space-y-2">
+			<p class="font-semibold">Layer</p>
+			<select bind:value={currentLayerType} class="w-full text-sm">
+				{#each LayersType as item, idx}
+					<option value={idx}>{item}</option>
+				{/each}
+			</select>
 		</div>
 
 		<div class="space-y-2">

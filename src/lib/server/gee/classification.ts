@@ -42,3 +42,21 @@ export function getInitialClassification(AOI: any, startDateUser: string, endDat
 export function getFinalClassification(AOI: any, endDateUser: string, endDate: any, cloudCover: number, cloudCoverUser: number, indices: string) {
 	return classification(getRecentImage(AOI, endDateUser, endDate, cloudCover, cloudCoverUser, indices)).clip(AOI)
 }
+
+export function getFromWaterImage(AOI: any, startDateUser: string, endDateUser: string, endDate: any, cloudCover: number, cloudCoverUser: any, indices: string) {
+	let initialClass5 = getInitialClassification(AOI, startDateUser, endDate, cloudCover, cloudCoverUser, indices)
+	initialClass5 = initialClass5.updateMask(initialClass5.eq(5))
+	let finalNotClass5 = getFinalClassification(AOI, endDateUser, endDate, cloudCover, cloudCoverUser, indices)
+	finalNotClass5 = finalNotClass5.updateMask(finalNotClass5.neq(5))
+	return initialClass5.and(finalNotClass5)
+}
+
+export function getToWaterImage(AOI: any, startDateUser: string, endDateUser: string, endDate: any, cloudCover: number, cloudCoverUser: any, indices: string) {
+
+	let initialNotClass5 = getInitialClassification(AOI, startDateUser, endDate, cloudCover, cloudCoverUser, indices)
+	initialNotClass5 = initialNotClass5.updateMask(initialNotClass5.neq(5))
+	let finalClass5 = getFinalClassification(AOI, endDateUser, endDate, cloudCover, cloudCoverUser, indices)
+	finalClass5 = finalClass5.updateMask(finalClass5.eq(5))
+
+	return initialNotClass5.and(finalClass5)
+}
