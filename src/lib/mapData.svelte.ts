@@ -1,3 +1,10 @@
+export const enum EETileLayerType {
+	StartImaage = 0,
+	FinalImage = 1,
+	InitialClassification = 2,
+	FinalClassification = 3
+}
+
 export const LakeData = [
 	{
 		name: "Ameenpur Lake",
