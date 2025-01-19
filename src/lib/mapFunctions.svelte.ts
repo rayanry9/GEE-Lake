@@ -3,6 +3,7 @@ import L from "leaflet"
 //@ts-ignore
 import shp from "shpjs"
 import { EELayerType, IndicesData, LakeData, LakesCode, WaterDataType, type TileResponseTypeAPI } from "./mapData";
+import { writable } from "svelte/store";
 
 let mapContainer: any
 let baseMapLayer: any
@@ -11,6 +12,7 @@ var geeTileLayer: null | any = null
 
 let currentLayerType = $state<EELayerType>(EELayerType.RecentImage)
 let memoMapForTileUrls = new Map<string, string>()
+export const inputDisabledSidebar = writable(false)
 
 export function setCurrentLayerType(type: EELayerType) {
 	currentLayerType = type
@@ -51,6 +53,7 @@ export function createMap(container: HTMLElement) {
 		addLakeShapeToMap(currentLakeId)
 	})
 	$effect(() => {
+		console.log("AAA")
 		addEETileLayer(currentLakeId, currentLayerType, JSON.stringify(indicesState), startDate, endDate)
 	})
 	$effect(() => {
@@ -64,8 +67,8 @@ export function addLakeShapeToMap(lakeId: LakesCode) {
 	}
 	shp(LakeData[lakeId].browserPath).then((geojson: any) => {
 		shapeGeoJson = L.geoJson(geojson)
-		shapeGeoJson.addTo(mapContainer)
 		mapContainer.fitBounds(shapeGeoJson.getBounds())
+		shapeGeoJson.addTo(mapContainer)
 	})
 }
 
@@ -87,6 +90,7 @@ export function addEETileLayer(lakeId: LakesCode, layerTypeToShow: EELayerType, 
 			attribution: 'Map data &copy; <a href="https://www.google.com/earth/engine/">Google Earth Engine</a>'
 		});
 		geeTileLayer.addTo(mapContainer);
+		inputDisabledSidebar.set(false)
 		return
 	}
 
@@ -101,6 +105,7 @@ export function addEETileLayer(lakeId: LakesCode, layerTypeToShow: EELayerType, 
 				attribution: 'Map data &copy; <a href="https://www.google.com/earth/engine/">Google Earth Engine</a>'
 			});
 			geeTileLayer.addTo(mapContainer);
+			inputDisabledSidebar.set(false)
 		})
 	})
 

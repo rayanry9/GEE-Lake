@@ -4,6 +4,7 @@
 	import DropdownWithCheckbox from '$lib/components/dropdownWithCheckbox.svelte';
 	import {
 		createMap,
+		inputDisabledSidebar,
 		setCurrentLakeId,
 		setCurrentLayerType,
 		setEndDate,
@@ -14,17 +15,30 @@
 	let endDate = $state('2025-01-12');
 	let currentLakeId = $state<LakesCode>(LakesCode.Ammenpur);
 	let currentLayerType = $state<EELayerType>(EELayerType.FinalClassification);
+	let inputDisabled = $state<boolean>(false);
+
+	inputDisabledSidebar.subscribe((val) => {
+		inputDisabled = val;
+	});
 
 	$effect(() => {
+		inputDisabled = true;
+		inputDisabledSidebar.set(true);
 		setCurrentLakeId(currentLakeId);
 	});
 	$effect(() => {
+		inputDisabled = true;
+		inputDisabledSidebar.set(true);
 		setStartDate(startDate);
 	});
 	$effect(() => {
+		inputDisabled = true;
+		inputDisabledSidebar.set(true);
 		setEndDate(endDate);
 	});
 	$effect(() => {
+		inputDisabled = true;
+		inputDisabledSidebar.set(true);
 		setCurrentLayerType(currentLayerType);
 	});
 
@@ -53,7 +67,11 @@
 		></div>
 		<div class="space-y-2">
 			<p class="font-semibold">Lakes</p>
-			<select class="w-full text-sm" bind:value={currentLakeId}>
+			<select
+				class="w-full text-sm disabled:bg-stone-300"
+				disabled={inputDisabled}
+				bind:value={currentLakeId}
+			>
 				{#each LakeData as item, idx}
 					<option value={idx}>{item.name}</option>
 				{/each}
@@ -67,9 +85,13 @@
 					type="date"
 					min="2018-01-01"
 					max={endDate}
-					bind:value={startDate}
+					value={startDate}
+					onchange={(ev) => {
+						startDate = (ev.target as any).value;
+					}}
+					disabled={inputDisabled}
 					required
-					class="w-full text-sm"
+					class="w-full text-sm disabled:bg-stone-300"
 				/>
 			</div>
 			<div class="grow space-y-2">
@@ -79,15 +101,23 @@
 					min="2018-01-01"
 					max={new Date().toISOString().slice(0, 10)}
 					required
-					bind:value={endDate}
-					class="w-full text-sm"
+					value={endDate}
+					disabled={inputDisabled}
+					onchange={(ev) => {
+						endDate = (ev.target as any).value;
+					}}
+					class="w-full text-sm disabled:bg-stone-300"
 				/>
 			</div>
 		</div>
 
 		<div class="grow space-y-2">
 			<p class="font-semibold">Layer</p>
-			<select bind:value={currentLayerType} class="w-full text-sm">
+			<select
+				disabled={inputDisabled}
+				bind:value={currentLayerType}
+				class="w-full text-sm disabled:bg-stone-300"
+			>
 				{#each LayersType as item, idx}
 					<option value={idx}>{item}</option>
 				{/each}
