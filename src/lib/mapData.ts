@@ -1,5 +1,18 @@
 export const cloudCover = 30
 
+export interface EELayer {
+	type: EELayerType,
+	lake: LakeCode,
+	urlFormat: string,
+	data: null | string | number,
+}
+export type EETileResponse = Array<EELayer>
+
+export enum WaterDataType {
+	ToWater = 0,
+	FromWater = 1
+}
+
 export const enum EELayerType {
 	FinalClassification = 0,
 	InitialClassification = 1,
@@ -8,7 +21,7 @@ export const enum EELayerType {
 	FromWater = 4,
 	ToWater = 5
 }
-export const LayersType = [
+export const LayerType = [
 	"Final Classification",
 	"Initial Classificaiton",
 	"Start Image",
@@ -16,7 +29,7 @@ export const LayersType = [
 	"From Water",
 	"To Water"
 ]
-export const enum LakesCode {
+export const enum LakeCode {
 	Ammenpur = 0,
 	Shabunikunta = 1,
 }
@@ -52,11 +65,3 @@ export const IndicesData = [
 ]
 
 
-export interface TileResponseTypeAPI {
-	urlFormat: string
-}
-
-export enum WaterDataType {
-	ToWater = 0,
-	FromWater = 1
-}

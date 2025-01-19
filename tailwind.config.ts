@@ -1,9 +1,8 @@
 import type { Config } from 'tailwindcss';
-import plugin from 'flowbite/plugin';
 
 export default {
-	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'],
-	plugins: [plugin],
+	content: ['./src/**/*.{html,js,svelte,ts}'],
+	plugins: [],
 	darkMode: 'selector',
 
 	theme: {

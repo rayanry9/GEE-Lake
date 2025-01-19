@@ -2,7 +2,7 @@
 import L from "leaflet"
 //@ts-ignore
 import shp from "shpjs"
-import { EELayerType, IndicesData, LakeData, LakesCode, WaterDataType, type TileResponseTypeAPI } from "./mapData";
+import { EELayerType, IndicesData, LakeData, LakeCode, type EETileResponse } from "./mapData";
 import { writable } from "svelte/store";
 
 let mapContainer: any
@@ -10,16 +10,16 @@ let baseMapLayer: any
 let shapeGeoJson: any
 var geeTileLayer: null | any = null
 
-let currentLayerType = $state<EELayerType>(EELayerType.RecentImage)
-let memoMapForTileUrls = new Map<string, string>()
+let EEResponseTiles: EETileResponse
 export const inputDisabledSidebar = writable(false)
 
+let currentLayerType = $state<EELayerType>(EELayerType.FinalClassification)
 export function setCurrentLayerType(type: EELayerType) {
 	currentLayerType = type
 }
 
-let currentLakeId = $state<LakesCode>(LakesCode.Ammenpur)
-export function setCurrentLakeId(id: LakesCode) {
+let currentLakeId = $state<LakeCode>(LakeCode.Ammenpur)
+export function setCurrentLakeId(id: LakeCode) {
 	currentLakeId = id
 }
 
@@ -53,15 +53,15 @@ export function createMap(container: HTMLElement) {
 		addLakeShapeToMap(currentLakeId)
 	})
 	$effect(() => {
-		console.log("AAA")
-		addEETileLayer(currentLakeId, currentLayerType, JSON.stringify(indicesState), startDate, endDate)
+		addEETileLayer(currentLakeId, JSON.stringify(indicesState), startDate, endDate)
 	})
 	$effect(() => {
-		getWaterData(currentLakeId, WaterDataType.ToWater, JSON.stringify(indicesState), startDate, endDate)
+		console.log("AA")
+		changeEETileLayer(currentLayerType)
 	})
 }
 
-export function addLakeShapeToMap(lakeId: LakesCode) {
+export function addLakeShapeToMap(lakeId: LakeCode) {
 	if (shapeGeoJson != null) {
 		mapContainer.removeLayer(shapeGeoJson)
 	}
@@ -71,57 +71,40 @@ export function addLakeShapeToMap(lakeId: LakesCode) {
 		shapeGeoJson.addTo(mapContainer)
 	})
 }
+function changeEETileLayer(currentLayerType: EELayerType) {
+	if (EEResponseTiles == null || EEResponseTiles == undefined) {
+		return
+	}
+	if (geeTileLayer != null) {
+		mapContainer.removeLayer(geeTileLayer)
+	}
+	geeTileLayer = L.tileLayer(EEResponseTiles[currentLayerType].urlFormat, {
+		maxZoom: 19,
+		attribution: 'Map data &copy; <a href="https://www.google.com/earth/engine/">Google Earth Engine</a>'
+	});
+	geeTileLayer.addTo(mapContainer);
+	inputDisabledSidebar.set(false)
+}
 
-export function addEETileLayer(lakeId: LakesCode, layerTypeToShow: EELayerType, indices: string, start: string, end: string) {
+function addEETileLayer(lakeId: LakeCode, indices: string, start: string, end: string) {
 	let GETParams = new URLSearchParams()
 	GETParams.append("AOIId", lakeId.toString())
-	GETParams.append("tileType", layerTypeToShow.toString())
 	GETParams.append("indices", indices)
 	GETParams.append("startDate", start)
 	GETParams.append("endDate", end)
-	console.log(memoMapForTileUrls)
-
-	if (memoMapForTileUrls.has(GETParams.toString())) {
-		if (geeTileLayer != null) {
-			mapContainer.removeLayer(geeTileLayer)
-		}
-		geeTileLayer = L.tileLayer(memoMapForTileUrls.get(GETParams.toString()), {
-			maxZoom: 19,
-			attribution: 'Map data &copy; <a href="https://www.google.com/earth/engine/">Google Earth Engine</a>'
-		});
-		geeTileLayer.addTo(mapContainer);
-		inputDisabledSidebar.set(false)
-		return
-	}
 
 	fetch("/ee/tile?" + GETParams.toString()).then((data) => {
-		data.json().then((val: TileResponseTypeAPI) => {
-			memoMapForTileUrls.set(GETParams.toString(), val.urlFormat)
+		data.json().then((val: EETileResponse) => {
+			EEResponseTiles = val
 			if (geeTileLayer != null) {
 				mapContainer.removeLayer(geeTileLayer)
 			}
-			geeTileLayer = L.tileLayer(val.urlFormat, {
+			geeTileLayer = L.tileLayer(val[currentLayerType].urlFormat, {
 				maxZoom: 19,
 				attribution: 'Map data &copy; <a href="https://www.google.com/earth/engine/">Google Earth Engine</a>'
 			});
 			geeTileLayer.addTo(mapContainer);
 			inputDisabledSidebar.set(false)
-		})
-	})
-
-}
-
-export function getWaterData(lakeId: LakesCode, waterDataType: WaterDataType, indices: string, start: string, end: string) {
-	let GETParams = new URLSearchParams()
-	GETParams.append("AOIId", lakeId.toString())
-	GETParams.append("waterDataType", waterDataType.toString())
-	GETParams.append("indices", indices)
-	GETParams.append("startDate", start)
-	GETParams.append("endDate", end)
-
-	fetch("/ee/data?" + GETParams.toString()).then((data) => {
-		data.json().then((val) => {
-			console.log(val.data)
 		})
 	})
 

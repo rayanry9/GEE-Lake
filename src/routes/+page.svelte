@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Action } from 'svelte/action';
-	import { EELayerType, LakeData, LakesCode, LayersType } from '$lib/mapData';
+	import { EELayerType, LakeData, LakeCode, LayerType } from '$lib/mapData';
 	import DropdownWithCheckbox from '$lib/components/dropdownWithCheckbox.svelte';
 	import {
 		createMap,
@@ -13,7 +13,7 @@
 
 	let startDate = $state('2025-01-01');
 	let endDate = $state('2025-01-12');
-	let currentLakeId = $state<LakesCode>(LakesCode.Ammenpur);
+	let currentLakeId = $state<LakeCode>(LakeCode.Ammenpur);
 	let currentLayerType = $state<EELayerType>(EELayerType.FinalClassification);
 	let inputDisabled = $state<boolean>(false);
 
@@ -118,7 +118,7 @@
 				bind:value={currentLayerType}
 				class="w-full text-sm disabled:bg-stone-300"
 			>
-				{#each LayersType as item, idx}
+				{#each LayerType as item, idx}
 					<option value={idx}>{item}</option>
 				{/each}
 			</select>

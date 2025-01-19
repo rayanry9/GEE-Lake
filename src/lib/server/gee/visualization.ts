@@ -1,60 +1,97 @@
-import { getFinalClassification, getFromWaterImage, getInitialClassification, getToWaterImage } from "./classification";
-import { getRecentImage, getStartImage } from "./imageCollections";
+import { LakeCode, LakeData, LayerType, type EELayer, type EETileResponse } from "$lib/mapData";
+import { Console } from "../consoleColors";
+import { classification } from "./classification";
+import { getCollectionWithIndices, getDailyMedianCollection, getDailyMedianWithDifferenceStart, getDailyMedianWithDifferenceStop, getRecentImage, gets2ImageCollection, getStartImage, getUniqueDatesCollection } from "./imageCollections";
+import { initGEE } from "./init";
 import { dataVisParams, rgbVisParams } from "./visParams";
 //@ts-ignore
 import ee from "@google/earthengine"
 
-export function getStartImgFormatUrl(AOIurl: string, startDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
-	let endDate = ee.Date(new Date()).advance(1, 'day');
+function getMapId(image: any, visParams: any): Promise<any> {
+	return new Promise((resolve, reject) => {
+		image.getMapId(visParams, (obj: any) => {
+			if (obj == undefined || obj == null) {
+				reject(new Error("Could not get computed Image"))
+			}
+			resolve(obj)
+		})
+	})
+}
+function getInfo(number: any): Promise<any> {
+	return new Promise((resolve, reject) => {
 
-	return getStartImage(AOI, startDateUser, endDate, cloudCover, cloudCoverUser, indices).getMapId(rgbVisParams).urlFormat
+		number.getInfo((obj: any) => {
+			if (obj == undefined || obj == null) {
+				reject(new Error("Could not get computed Image"))
+			}
+			resolve(obj)
+		})
+	})
 }
 
-export function getInitialClassificationFormatUrl(AOIurl: string, startDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
+export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string): Promise<EETileResponse | null> {
+
+	let responseData: EETileResponse = new Array<EELayer>
+	let AOI: any
+
+	try {
+		AOI = ee.FeatureCollection(LakeData[AOIcode].geeAssetPath)
+	} catch (e: any) {
+		if ((e.message as string).match("Request is missing required authentication credential. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.")) {
+			Console.error("Google Earth Engine Not Authenticated")
+
+			let geeAuthStatus = await initGEE()
+			if (!geeAuthStatus) {
+				return null
+			}
+			AOI = ee.FeatureCollection(LakeData[AOIcode].geeAssetPath)
+		}
+
+	}
 	let endDate = ee.Date(new Date()).advance(1, 'day');
 
-	return getInitialClassification(AOI, startDateUser, endDate, cloudCover, cloudCoverUser, indices).getMapId(dataVisParams).urlFormat
-}
+	let s2Img = gets2ImageCollection(AOI, endDate, cloudCover, cloudCoverUser)
+	let collectionImgWithIndices = getCollectionWithIndices(s2Img, indices)
+	let uniqDatesCollectionImg = getUniqueDatesCollection(collectionImgWithIndices)
+	let dailyMedianCollectionImg = getDailyMedianCollection(uniqDatesCollectionImg, collectionImgWithIndices)
+	let dailyMedianDiffStartCollectionImg = getDailyMedianWithDifferenceStart(dailyMedianCollectionImg, startDateUser)
+	let dailyMedianDiffStopCollectionImg = getDailyMedianWithDifferenceStop(dailyMedianCollectionImg, endDateUser)
 
-export function getRecentImgFormatUrl(AOIurl: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
-	let endDate = ee.Date(new Date()).advance(1, 'day');
+	let startImage = getStartImage(dailyMedianDiffStartCollectionImg)
+	let recentImage = getRecentImage(dailyMedianDiffStopCollectionImg)
+	let initialClassifcation = classification(startImage).clip(AOI)
+	let finalClassifcation = classification(recentImage).clip(AOI)
 
-	return getRecentImage(AOI, endDateUser, endDate, cloudCover, cloudCoverUser, indices).getMapId(rgbVisParams).urlFormat
-}
+	let initialNotClass5 = initialClassifcation.updateMask(initialClassifcation.neq(5))
+	let finalClass5 = finalClassifcation.updateMask(finalClassifcation.eq(5))
+	let toWater = initialNotClass5.and(finalClass5)
 
-export function getFinalClassificationFormatUrl(AOIurl: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
-	let endDate = ee.Date(new Date()).advance(1, 'day');
+	let initialClass5 = initialClassifcation.updateMask(initialClassifcation.eq(5))
+	let finalNotClass5 = finalClassifcation.updateMask(finalClassifcation.neq(5))
+	let fromWater = initialClass5.and(finalNotClass5)
 
-	return getFinalClassification(AOI, endDateUser, endDate, cloudCover, cloudCoverUser, indices).getMapId(dataVisParams).urlFormat
-}
+	let allData = await Promise.all([
+		getMapId(finalClassifcation, dataVisParams),
+		getMapId(initialClassifcation, dataVisParams),
+		getMapId(startImage, rgbVisParams),
+		getMapId(recentImage, rgbVisParams),
+		getMapId(fromWater, { min: 0, max: 1, palette: ['red'] }),
+		getMapId(toWater, { min: 0, max: 1, palette: ['green'] }),
+		getInfo(ee.Number(fromWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01)),
+		getInfo(ee.Number(toWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01))
+	])
 
-export function getFromWaterFormatUrl(AOIurl: string, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
-	let endDate = ee.Date(new Date()).advance(1, 'day');
-
-	return getFromWaterImage(AOI, startDateUser, endDateUser, endDate, cloudCover, cloudCoverUser, indices).getMapId({ min: 0, max: 1, palette: ['red'] }).urlFormat
-}
-
-export function getToWaterFormatUrl(AOIurl: string, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
-	let endDate = ee.Date(new Date()).advance(1, 'day');
-
-	return getToWaterImage(AOI, startDateUser, endDateUser, endDate, cloudCover, cloudCoverUser, indices).getMapId({ min: 0, max: 1, palette: ['green'] }).urlFormat
-}
-
-export function getFromWaterData(AOIurl: string, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
-	let endDate = ee.Date(new Date()).advance(1, 'day');
-
-	return ee.Number(getFromWaterImage(AOI, startDateUser, endDateUser, endDate, cloudCover, cloudCoverUser, indices).reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01).getInfo()
-}
-
-export function getToWaterData(AOIurl: string, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string) {
-	let AOI = ee.FeatureCollection(AOIurl)
-	let endDate = ee.Date(new Date()).advance(1, 'day');
-	return ee.Number(getToWaterImage(AOI, startDateUser, endDateUser, endDate, cloudCover, cloudCoverUser, indices).reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01).getInfo()
+	allData.forEach((element, idx) => {
+		if (idx < LayerType.length) {
+			responseData.push({
+				type: idx,
+				lake: AOIcode,
+				urlFormat: element.urlFormat,
+				data: null
+			} satisfies EELayer)
+		} else {
+			responseData[idx - 2].data = element
+		}
+	});
+	return responseData
 }
