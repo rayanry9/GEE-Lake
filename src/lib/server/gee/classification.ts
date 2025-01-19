@@ -1,4 +1,7 @@
 export function classification(image: any) {
+
+	//Console.info("Classifying Image")
+
 	return image.expression(
 		// Conditions for classification
 		'aweinsh >= -1.70 && aweinsh <= -0.57 && ndvi >= 0.17 && ndbi < 0.101 && red < 0.24 ? 2 : ' +

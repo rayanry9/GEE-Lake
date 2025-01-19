@@ -70,16 +70,26 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 	let finalNotClass5 = finalClassifcation.updateMask(finalClassifcation.neq(5))
 	let fromWater = initialClass5.and(finalNotClass5)
 
-	let allData = await Promise.all([
-		getMapId(finalClassifcation, dataVisParams),
-		getMapId(initialClassifcation, dataVisParams),
-		getMapId(startImage, rgbVisParams),
-		getMapId(recentImage, rgbVisParams),
-		getMapId(fromWater, { min: 0, max: 1, palette: ['red'] }),
-		getMapId(toWater, { min: 0, max: 1, palette: ['green'] }),
-		getInfo(ee.Number(fromWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01)),
-		getInfo(ee.Number(toWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01))
-	])
+	let allData: any[] = []
+
+	Console.task("Started Computing Images Google Earth Engine")
+
+	try {
+		allData = await Promise.all([
+			getMapId(finalClassifcation, dataVisParams),
+			getMapId(initialClassifcation, dataVisParams),
+			getMapId(startImage, rgbVisParams),
+			getMapId(recentImage, rgbVisParams),
+			getMapId(fromWater, { min: 0, max: 1, palette: ['red'] }),
+			getMapId(toWater, { min: 0, max: 1, palette: ['green'] }),
+			getInfo(ee.Number(fromWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01)),
+			getInfo(ee.Number(toWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01))
+		])
+		Console.success("Google Earth Engine Images Computed")
+	} catch (e) {
+		Console.error("Google Earth Engine could not compute any/all of the images")
+		return null
+	}
 
 	allData.forEach((element, idx) => {
 		if (idx < LayerType.length) {
@@ -93,5 +103,6 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 			responseData[idx - 2].data = element
 		}
 	});
+
 	return responseData
 }

@@ -10,6 +10,7 @@
 		setEndDate,
 		setStartDate
 	} from '$lib/mapFunctions.svelte';
+	import DataCard from '$lib/components/dataCard.svelte';
 
 	let startDate = $state('2025-01-01');
 	let endDate = $state('2025-01-12');
@@ -46,7 +47,6 @@
 		createMap(node);
 	};
 	let sidebarShow = $state(true);
-	console.log();
 </script>
 
 <div class="relative flex h-full flex-row overflow-x-clip">
@@ -68,7 +68,7 @@
 		<div class="space-y-2">
 			<p class="font-semibold">Lakes</p>
 			<select
-				class="w-full text-sm disabled:bg-stone-300"
+				class=" w-full bg-white px-3 py-2 text-sm outline outline-[1px] outline-black disabled:bg-stone-300"
 				disabled={inputDisabled}
 				bind:value={currentLakeId}
 			>
@@ -91,7 +91,7 @@
 					}}
 					disabled={inputDisabled}
 					required
-					class="w-full text-sm disabled:bg-stone-300"
+					class="w-full bg-white px-3 py-2 text-sm outline outline-[1px] outline-black disabled:bg-stone-300"
 				/>
 			</div>
 			<div class="grow space-y-2">
@@ -106,7 +106,7 @@
 					onchange={(ev) => {
 						endDate = (ev.target as any).value;
 					}}
-					class="w-full text-sm disabled:bg-stone-300"
+					class="w-full bg-white px-3 py-2 text-sm outline outline-[1px] outline-black disabled:bg-stone-300"
 				/>
 			</div>
 		</div>
@@ -116,7 +116,7 @@
 			<select
 				disabled={inputDisabled}
 				bind:value={currentLayerType}
-				class="w-full text-sm disabled:bg-stone-300"
+				class="w-full bg-white px-3 py-2 text-sm outline outline-[1px] outline-black disabled:bg-stone-300"
 			>
 				{#each LayerType as item, idx}
 					<option value={idx}>{item}</option>
@@ -127,6 +127,14 @@
 		<div class="space-y-2">
 			<p class="font-semibold">Indices</p>
 			<DropdownWithCheckbox />
+		</div>
+
+		<div class="flex flex-col space-y-4">
+			<p class="font-semibold">Water Data</p>
+			<div class="flex flex-row space-x-5">
+				<DataCard title="From Water" value={0.37} isFrom={true} />
+				<DataCard title="To Water" value={4.5} isFrom={false} />
+			</div>
 		</div>
 	</div>
 </div>

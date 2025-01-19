@@ -69,7 +69,8 @@ export function setSessionTokenCookie(event: RequestEvent, token: string, expire
 		httpOnly: true,
 		sameSite: "lax",
 		expires: expiresAt,
-		path: "/"
+		path: "/",
+		//	secure: false
 	})
 }
 export function deleteSessionTokenCookie(event: RequestEvent): void {

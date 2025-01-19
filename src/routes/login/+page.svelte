@@ -21,14 +21,14 @@
 					type="email"
 					name="email"
 					placeholder="name@company.com"
-					class="rounded-lg bg-slate-50 text-sm"
+					class="rounded-lg bg-slate-50 px-3 py-3 text-sm outline outline-gray-200 hover:bg-stone-100 focus:outline-indigo-500"
 					required
 				/>
 			</div>
 			<div class="flex flex-col space-y-2 text-sm">
 				<span>Your Password</span>
 				<input
-					class="rounded-lg bg-slate-50 text-sm"
+					class="rounded-lg bg-slate-50 px-3 py-3 text-sm outline outline-gray-200 hover:bg-stone-100 focus:outline-indigo-500"
 					type="password"
 					name="password"
 					placeholder="*****"

@@ -16,7 +16,7 @@
 		dropdownState = false;
 	}}
 >
-	<div class="px-3 py-2">Select Indices</div>
+	<div class="px-4 py-2">Select Indices</div>
 	<div
 		class="absolute left-0 w-full origin-top bg-white {dropdownState
 			? 'pointer-events-auto opacity-100'

@@ -6,7 +6,7 @@ import { addAWEInsh, addAWEIsh, addBSI, addmNDWI, addNDBI, addNDVI } from "./ban
 import { IndicesCode } from "$lib/mapData";
 import { Console } from "../consoleColors";
 
-function getl5ImageCollection(AOI: any, startDate: string, cloudCover: number, cloudCoverUser: number): any {
+export function getl5ImageCollection(AOI: any, startDate: string, cloudCover: number, cloudCoverUser: number): any {
 	return ee.ImageCollection('LANDSAT/LT05/C02/T1_L2')
 		.filterBounds(AOI)
 		.filterDate(startDate, ee.Date('2015'))
@@ -16,7 +16,7 @@ function getl5ImageCollection(AOI: any, startDate: string, cloudCover: number, c
 		.map(applyScaleFactors);
 }
 
-function getl8ImageCollection(AOI: any, endDate: string, cloudCover: number, cloudCoverUser: number) {
+export function getl8ImageCollection(AOI: any, endDate: string, cloudCover: number, cloudCoverUser: number) {
 
 	return ee.ImageCollection('LANDSAT/LC08/C02/T1_L2')
 		.filterBounds(AOI)
@@ -27,7 +27,7 @@ function getl8ImageCollection(AOI: any, endDate: string, cloudCover: number, clo
 		.map(applyScaleFactors);
 }
 
-function getl9ImageCollection(AOI: any, endDate: any, cloudCover: number, cloudCoverUser: number) {
+export function getl9ImageCollection(AOI: any, endDate: any, cloudCover: number, cloudCoverUser: number) {
 	return ee.ImageCollection('LANDSAT/LC09/C02/T1_L2')
 		.filterBounds(AOI)
 		.filterDate(ee.Date('2011'), endDate)
@@ -38,7 +38,9 @@ function getl9ImageCollection(AOI: any, endDate: any, cloudCover: number, cloudC
 }
 
 export function gets2ImageCollection(AOI: any, endDate: any, cloudCover: number, cloudCoverUser: number) {
-	Console.info("Retrieved S2 Sat Image")
+
+	//Console.info("Retrieved S2 Sat Image")
+
 	return ee.ImageCollection("COPERNICUS/S2_SR")
 		.filterBounds(AOI)
 		.filterDate(ee.Date('2017'), endDate)
@@ -51,7 +53,7 @@ export function gets2ImageCollection(AOI: any, endDate: any, cloudCover: number,
 
 export function getCollectionWithIndices(s2Img: any, indices: string) {
 
-	Console.info("Added Bands to Collection");
+	//Console.info("Added Bands to Collection");
 
 	(JSON.parse(indices) as Array<Boolean>).forEach((val, idx) => {
 		idx = idx as IndicesCode
@@ -83,7 +85,7 @@ export function getCollectionWithIndices(s2Img: any, indices: string) {
 
 export function getUniqueDatesCollection(collectionImgWithIndices: any) {
 
-	Console.info("Filtering Collection by Unique Dates");
+	//Console.info("Filtering Collection by Unique Dates");
 
 	return collectionImgWithIndices.aggregate_array('system:time_start')
 		.map(function(date: any) {
@@ -93,7 +95,7 @@ export function getUniqueDatesCollection(collectionImgWithIndices: any) {
 
 export function getDailyMedianCollection(uniqDatesCollectionImg: any, collectionImgWithIndices: any) {
 
-	Console.info("Getting Daily Median From Collection");
+	//Console.info("Getting Daily Median From Collection");
 
 	return ee.ImageCollection.fromImages(
 		uniqDatesCollectionImg.map(function(date: any) {
@@ -108,7 +110,7 @@ export function getDailyMedianCollection(uniqDatesCollectionImg: any, collection
 
 export function getDailyMedianWithDifferenceStart(dailyMedianCollectionImg: any, startDateUser: string) {
 
-	Console.info("Getting Start Daily Median Difference");
+	//Console.info("Getting Start Daily Median Difference");
 
 	return dailyMedianCollectionImg.map(function(image: any) {
 		let diff = image.date().difference(startDateUser, 'day').abs();
@@ -118,7 +120,7 @@ export function getDailyMedianWithDifferenceStart(dailyMedianCollectionImg: any,
 
 export function getDailyMedianWithDifferenceStop(dailyMedianCollectionImg: any, endDateUser: string) {
 
-	Console.info("Getting Stop Daily Median Difference");
+	//Console.info("Getting Stop Daily Median Difference");
 
 	return dailyMedianCollectionImg.map(function(image: any) {
 		let diff = image.date().difference(endDateUser, 'day').abs();
@@ -128,14 +130,14 @@ export function getDailyMedianWithDifferenceStop(dailyMedianCollectionImg: any, 
 
 export function getStartImage(dailyMedianWithDiffStartCollectionImg: any) {
 
-	Console.info("Getting Start Image");
+	//Console.info("Getting Start Image");
 
 	return dailyMedianWithDiffStartCollectionImg.sort('date_difference').first()
 }
 
 export function getRecentImage(dailyMedianWithDiffStopCollectionImg: any) {
 
-	Console.info("Getting Recent Image");
+	//Console.info("Getting Recent Image");
 
 	return dailyMedianWithDiffStopCollectionImg.sort('date_difference').first()
 }
