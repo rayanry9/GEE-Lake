@@ -12,6 +12,8 @@ var geeTileLayer: null | any = null
 
 let EEResponseTiles: EETileResponse
 export const inputDisabledSidebar = writable(false)
+export const toWaterData = writable(0)
+export const fromWaterData = writable(0)
 
 let currentLayerType = $state<EELayerType>(EELayerType.FinalClassification)
 export function setCurrentLayerType(type: EELayerType) {
@@ -33,7 +35,7 @@ export function setStartDate(date: string) {
 	startDate = date
 }
 
-let endDate = $state("2025-01-12")
+let endDate = $state(new Date().toISOString().substring(0, 10).toString())
 export function setEndDate(date: string) {
 	endDate = date
 }
@@ -56,7 +58,6 @@ export function createMap(container: HTMLElement) {
 		addEETileLayer(currentLakeId, JSON.stringify(indicesState), startDate, endDate)
 	})
 	$effect(() => {
-		console.log("AA")
 		changeEETileLayer(currentLayerType)
 	})
 }
@@ -84,6 +85,8 @@ function changeEETileLayer(currentLayerType: EELayerType) {
 	});
 	geeTileLayer.addTo(mapContainer);
 	inputDisabledSidebar.set(false)
+	fromWaterData.set(EEResponseTiles[6].data! as number)
+	toWaterData.set(EEResponseTiles[7].data! as number)
 }
 
 function addEETileLayer(lakeId: LakeCode, indices: string, start: string, end: string) {
@@ -105,6 +108,9 @@ function addEETileLayer(lakeId: LakeCode, indices: string, start: string, end: s
 			});
 			geeTileLayer.addTo(mapContainer);
 			inputDisabledSidebar.set(false)
+
+			fromWaterData.set(val[4].data! as number)
+			toWaterData.set(val[5].data! as number)
 		})
 	})
 

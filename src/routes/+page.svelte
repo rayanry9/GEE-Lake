@@ -4,22 +4,36 @@
 	import DropdownWithCheckbox from '$lib/components/dropdownWithCheckbox.svelte';
 	import {
 		createMap,
+		fromWaterData,
 		inputDisabledSidebar,
 		setCurrentLakeId,
 		setCurrentLayerType,
 		setEndDate,
-		setStartDate
+		setStartDate,
+		toWaterData
 	} from '$lib/mapFunctions.svelte';
 	import DataCard from '$lib/components/dataCard.svelte';
 
-	let startDate = $state('2025-01-01');
-	let endDate = $state('2025-01-12');
+	let strDate = new Date();
+	strDate.setFullYear(strDate.getFullYear() - 1);
+
+	let startDate = $state(strDate.toISOString().substring(0, 10).toString());
+	let endDate = $state(new Date().toISOString().substring(0, 10).toString());
 	let currentLakeId = $state<LakeCode>(LakeCode.Ammenpur);
 	let currentLayerType = $state<EELayerType>(EELayerType.FinalClassification);
 	let inputDisabled = $state<boolean>(false);
+	let toWater = $state(0);
+	let fromWater = $state(0);
 
 	inputDisabledSidebar.subscribe((val) => {
 		inputDisabled = val;
+	});
+
+	toWaterData.subscribe((val) => {
+		toWater = val;
+	});
+	fromWaterData.subscribe((val) => {
+		fromWater = val;
 	});
 
 	$effect(() => {
@@ -60,6 +74,13 @@
 			: 'right-[-25rem]'} top-4 z-[1000] flex w-[25rem] flex-col space-y-6 bg-stone-50 px-10 pb-10 outline outline-[1px] outline-gray-700"
 	>
 		<div
+			role="button"
+			tabindex={0}
+			onkeydown={(ev) => {
+				if (ev.key == 'Enter') {
+					sidebarShow = !sidebarShow;
+				}
+			}}
 			onclick={() => {
 				sidebarShow = !sidebarShow;
 			}}
@@ -132,8 +153,8 @@
 		<div class="flex flex-col space-y-4">
 			<p class="font-semibold">Water Data</p>
 			<div class="flex flex-row space-x-5">
-				<DataCard title="From Water" value={0.37} isFrom={true} />
-				<DataCard title="To Water" value={4.5} isFrom={false} />
+				<DataCard title="From Water" value={fromWater} isFrom={true} />
+				<DataCard title="To Water" value={toWater} isFrom={false} />
 			</div>
 		</div>
 	</div>

@@ -25,12 +25,20 @@
 		{#each IndicesData as indice, idx}
 			<div class="flex w-full flex-row px-3 py-2 hover:bg-indigo-500 hover:text-white">
 				<span
+					role="checkbox"
+					tabindex={0}
+					aria-checked={indiceState[idx]}
+					onkeydown={(ev) => {
+						if (ev.key.match('Enter')) {
+							indiceState[idx] = !indiceState[idx];
+						}
+					}}
 					onclick={() => {
 						indiceState[idx] = !indiceState[idx];
 					}}
 					class="grow">{indice}</span
 				>
-				<input type="checkbox" bind:checked={indiceState[idx]} defaultChecked={true} />
+				<input tabindex={1} type="checkbox" bind:checked={indiceState[idx]} defaultChecked={true} />
 			</div>
 		{/each}
 	</div>
