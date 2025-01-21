@@ -1,9 +1,10 @@
 import { json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
-import { cloudCover, type LakeCode } from "$lib/mapData";
+import { cloudCover, type EETileResponse, type LakeCode } from "$lib/mapData";
 import { getAllFormatUrls } from "$lib/server/gee/visualization";
 import { Console } from "$lib/server/consoleColors";
+import { getFromCache, hasInCache, setInCache } from "$lib/server/caching";
 
 export const GET: RequestHandler = async (req) => {
 	Console.requestInfo("GET", req.getClientAddress(), req.url.toString(), "Request for Tile Data")
@@ -40,7 +41,19 @@ export const GET: RequestHandler = async (req) => {
 	let endDateUser = params.get("endDate")!.toString()
 
 	let cloudCoverUser = 10
-	let resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser, indices)
+
+	let resData: EETileResponse | null
+
+	if (hasInCache(req.url.searchParams.toString())) {
+		resData = JSON.parse(getFromCache(req.url.searchParams.toString())) as EETileResponse
+	} else {
+		resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser, indices)
+		if (resData != null) {
+			setInCache(req.url.searchParams.toString(), JSON.stringify(resData))
+		}
+	}
+
+
 	if (resData == null) {
 		Console.requestError("500", req.getClientAddress(), req.url.toString(), "Server Internal Error")
 		return json("", { status: 500 })

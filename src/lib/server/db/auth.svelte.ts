@@ -70,7 +70,7 @@ export function setSessionTokenCookie(event: RequestEvent, token: string, expire
 		sameSite: "lax",
 		expires: expiresAt,
 		path: "/",
-		//	secure: false
+		secure: false
 	})
 }
 export function deleteSessionTokenCookie(event: RequestEvent): void {

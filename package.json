@@ -39,6 +39,7 @@
 		"@oslojs/encoding": "^1.1.0",
 		"colors": "^1.4.0",
 		"leaflet": "^1.9.4",
+		"node-cache": "^5.1.2",
 		"postgres": "^3.4.5",
 		"shpjs": "^6.1.0"
 	}
