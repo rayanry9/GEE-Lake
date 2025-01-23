@@ -3,8 +3,8 @@ import ee from "@google/earthengine"
 import { cloudPercent2, cloudPercentl5, cloudPercentl89 } from "./cloudFunctions";
 import { applyScaleFactors, clipToAOI, s2scale } from "./utilFunctions";
 import { addAWEInsh, addAWEIsh, addBSI, addmNDWI, addNDBI, addNDVI } from "./bandFunctions";
-import { IndicesCode } from "$lib/mapData";
-import { Console } from "../consoleColors";
+//import { IndicesCode } from "$lib/mapData";
+//import { Console } from "../consoleColors";
 
 export function getl5ImageCollection(AOI: any, startDate: string, cloudCover: number, cloudCoverUser: number): any {
 	return ee.ImageCollection('LANDSAT/LT05/C02/T1_L2')
@@ -51,10 +51,12 @@ export function gets2ImageCollection(AOI: any, endDate: any, cloudCover: number,
 		.map((image: any) => clipToAOI(AOI, image))
 }
 
-export function getCollectionWithIndices(s2Img: any, indices: string) {
+//export function getCollectionWithIndices(s2Img: any, indices: string) {
+export function getCollectionWithIndices(s2Img: any) {
 
 	//Console.info("Added Bands to Collection");
 
+	/*
 	(JSON.parse(indices) as Array<Boolean>).forEach((val, idx) => {
 		idx = idx as IndicesCode
 		if (val) {
@@ -80,6 +82,8 @@ export function getCollectionWithIndices(s2Img: any, indices: string) {
 			}
 		}
 	})
+	*/
+	s2Img = s2Img.map(addNDVI).map(addmNDWI).map(addAWEIsh).map(addAWEInsh).map(addNDBI).map(addBSI)
 	return s2Img.sort('system:time_start')
 }
 

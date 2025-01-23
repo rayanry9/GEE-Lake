@@ -1,12 +1,22 @@
 export const cloudCover = 30
 
-export interface EELayer {
-	type: EELayerType,
-	lake: LakeCode,
-	urlFormat: string,
-	data: null | string | number,
+
+export interface EEStat {
+	building: number,
+	soil: number,
+	treeCover: number,
+	waterBody: number
 }
-export type EETileResponse = Array<EELayer>
+
+export enum EEStatType {
+	Initial = 0,
+	Final = 1,
+	Change = 2
+}
+export interface EEResponseData {
+	tile: Array<string>,
+	data: Array<EEStat>
+}
 
 export enum WaterDataType {
 	ToWater = 0,
@@ -29,11 +39,11 @@ export const LayerType = [
 	"From Water",
 	"To Water"
 ]
+
 export const enum LakeCode {
 	Ammenpur = 0,
 	Shabunikunta = 1,
 }
-
 export const LakeData = [
 	{
 		name: "Ameenpur Lake",

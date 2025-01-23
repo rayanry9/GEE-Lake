@@ -1,8 +1,9 @@
-import { LakeCode, LakeData, LayerType, type EELayer, type EETileResponse } from "$lib/mapData";
+import { type EEStat, LakeCode, LakeData, type EEResponseData } from "$lib/mapData";
 import { Console } from "../consoleColors";
 import { classification } from "./classification";
 import { getCollectionWithIndices, getDailyMedianCollection, getDailyMedianWithDifferenceStart, getDailyMedianWithDifferenceStop, getRecentImage, gets2ImageCollection, getStartImage, getUniqueDatesCollection } from "./imageCollections";
 import { initGEE } from "./init";
+import { calculateAreaChange, calculateClassAreas } from "./utilFunctions";
 import { dataVisParams, rgbVisParams } from "./visParams";
 //@ts-ignore
 import ee from "@google/earthengine"
@@ -29,9 +30,12 @@ function getInfo(number: any): Promise<any> {
 	})
 }
 
-export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, indices: string): Promise<EETileResponse | null> {
+export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number): Promise<EEResponseData | null> {
 
-	let responseData: EETileResponse = new Array<EELayer>
+	let responseData: EEResponseData = {
+		tile: new Array<string>(),
+		data: new Array<EEStat>()
+	}
 	let AOI: any
 
 	try {
@@ -51,7 +55,8 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 	let endDate = ee.Date(new Date()).advance(1, 'day');
 
 	let s2Img = gets2ImageCollection(AOI, endDate, cloudCover, cloudCoverUser)
-	let collectionImgWithIndices = getCollectionWithIndices(s2Img, indices)
+	//let collectionImgWithIndices = getCollectionWithIndices(s2Img, indices)
+	let collectionImgWithIndices = getCollectionWithIndices(s2Img)
 	let uniqDatesCollectionImg = getUniqueDatesCollection(collectionImgWithIndices)
 	let dailyMedianCollectionImg = getDailyMedianCollection(uniqDatesCollectionImg, collectionImgWithIndices)
 	let dailyMedianDiffStartCollectionImg = getDailyMedianWithDifferenceStart(dailyMedianCollectionImg, startDateUser)
@@ -65,10 +70,14 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 	let initialNotClass5 = initialClassifcation.updateMask(initialClassifcation.neq(5))
 	let finalClass5 = finalClassifcation.updateMask(finalClassifcation.eq(5))
 	let toWater = initialNotClass5.and(finalClass5)
-
 	let initialClass5 = initialClassifcation.updateMask(initialClassifcation.eq(5))
 	let finalNotClass5 = finalClassifcation.updateMask(finalClassifcation.neq(5))
 	let fromWater = initialClass5.and(finalNotClass5)
+
+	let initialClassArea = calculateClassAreas(initialClassifcation, AOI, 10)
+	let finalClassArea = calculateClassAreas(finalClassifcation, AOI, 10)
+
+	let changeInArea = calculateAreaChange(initialClassArea, finalClassArea)
 
 	let allData: any[] = []
 
@@ -82,27 +91,33 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 			getMapId(recentImage, rgbVisParams),
 			getMapId(fromWater, { min: 0, max: 1, palette: ['red'] }),
 			getMapId(toWater, { min: 0, max: 1, palette: ['green'] }),
-			getInfo(ee.Number(fromWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01)),
-			getInfo(ee.Number(toWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01))
+			//getInfo(ee.Number(fromWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01)),
+			//getInfo(ee.Number(toWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01))
 		])
+
+		allData.forEach((element) => {
+			responseData.tile.push(element.urlFormat)
+		});
+
+		allData = await Promise.all([
+			getInfo(initialClassArea),
+			getInfo(finalClassArea),
+			getInfo(changeInArea),
+		])
+
+		allData.forEach((element) => {
+			responseData.data.push({
+				building: element["building"] as number,
+				soil: element["soil"] as number,
+				treeCover: element["treeCover"] as number,
+				waterBody: element["waterBody"] as number
+			})
+		});
+
 		Console.success("Google Earth Engine Images Computed")
 	} catch (e) {
 		Console.error("Google Earth Engine could not compute any/all of the images")
 		return null
 	}
-
-	allData.forEach((element, idx) => {
-		if (idx < LayerType.length) {
-			responseData.push({
-				type: idx,
-				lake: AOIcode,
-				urlFormat: element.urlFormat,
-				data: null
-			} satisfies EELayer)
-		} else {
-			responseData[idx - 2].data = element
-		}
-	});
-
 	return responseData
 }

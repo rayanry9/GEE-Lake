@@ -1,7 +1,7 @@
 import { json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
-import { cloudCover, type EETileResponse, type LakeCode } from "$lib/mapData";
+import { cloudCover, type EEResponseData, type LakeCode } from "$lib/mapData";
 import { getAllFormatUrls } from "$lib/server/gee/visualization";
 import { Console } from "$lib/server/consoleColors";
 import { getFromCache, hasInCache, setInCache } from "$lib/server/caching";
@@ -16,12 +16,14 @@ export const GET: RequestHandler = async (req) => {
 
 		return new Response("No AOIId param", { status: 400 })
 	}
+	/*
 	if (!params.has("indices")) {
 
 		Console.requestError("400", req.getClientAddress(), req.url.toString(), "Invalid / No Indices")
 
 		return new Response("No Indices Param", { status: 400 })
 	}
+	*/
 	if (!params.has("startDate")) {
 
 		Console.requestError("400", req.getClientAddress(), req.url.toString(), "Invalid / No Start Date")
@@ -35,19 +37,20 @@ export const GET: RequestHandler = async (req) => {
 		return new Response("No End Date Param", { status: 400 })
 	}
 
-	let indices = params.get("indices")!
+	//let indices = params.get("indices")!
 	let AOIId = parseInt(params.get("AOIId")!) as LakeCode
 	let startDateUser = params.get("startDate")!.toString()
 	let endDateUser = params.get("endDate")!.toString()
 
 	let cloudCoverUser = 10
 
-	let resData: EETileResponse | null
+	let resData: EEResponseData | null
 
 	if (hasInCache(req.url.searchParams.toString())) {
-		resData = JSON.parse(getFromCache(req.url.searchParams.toString())) as EETileResponse
+		resData = JSON.parse(getFromCache(req.url.searchParams.toString())) as EEResponseData
 	} else {
-		resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser, indices)
+		//resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser, indices)
+		resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser)
 		if (resData != null) {
 			setInCache(req.url.searchParams.toString(), JSON.stringify(resData))
 		}

@@ -1,116 +1,59 @@
-//@ts-ignore
-import L from "leaflet"
+import { LakeData, LakeCode, type EEResponseData } from "./mapData";
 //@ts-ignore
 import shp from "shpjs"
-import { EELayerType, IndicesData, LakeData, LakeCode, type EETileResponse } from "./mapData";
-import { writable } from "svelte/store";
+//@ts-ignore
+import L from "leaflet"
+import { currentLakeId, EEResponseTileData, setEEResponseStatData, setEEResponseTileData } from "./mapState";
 
-let mapContainer: any
-let baseMapLayer: any
-let shapeGeoJson: any
-var geeTileLayer: null | any = null
+export function createMap(container: HTMLElement): any {
 
-let EEResponseTiles: EETileResponse
-export const inputDisabledSidebar = writable(false)
-export const toWaterData = writable(0)
-export const fromWaterData = writable(0)
-
-let currentLayerType = $state<EELayerType>(EELayerType.FinalClassification)
-export function setCurrentLayerType(type: EELayerType) {
-	currentLayerType = type
-}
-
-let currentLakeId = $state<LakeCode>(LakeCode.Ammenpur)
-export function setCurrentLakeId(id: LakeCode) {
-	currentLakeId = id
-}
-
-let indicesState = $state(new Array<boolean>(IndicesData.length))
-for (let i = 0; i < IndicesData.length; i++) {
-	indicesState[i] = true
-}
-
-let startDate = $state("2025-01-01")
-export function setStartDate(date: string) {
-	startDate = date
-}
-
-let endDate = $state(new Date().toISOString().substring(0, 10).toString())
-export function setEndDate(date: string) {
-	endDate = date
-}
-
-export function createMap(container: HTMLElement) {
-
-	mapContainer = L.map(container).setView([0, 0], 2);
-	baseMapLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	let mapContainer = L.map(container).setView([0, 0], 2);
+	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
 		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-	})
-	baseMapLayer.addTo(mapContainer);
+	}).addTo(mapContainer);
 
 	L.control.scale({ position: 'bottomleft' }).addTo(mapContainer)
+	return mapContainer
+}
 
-	$effect(() => {
-		addLakeShapeToMap(currentLakeId)
-	})
-	$effect(() => {
-		addEETileLayer(currentLakeId, JSON.stringify(indicesState), startDate, endDate)
-	})
-	$effect(() => {
-		changeEETileLayer(currentLayerType)
+export async function addLakeShapeToMap(lakeId: LakeCode, mapContainer: any): Promise<any> {
+	return new Promise((resolve, _) => {
+
+		shp(LakeData[lakeId].browserPath).then((geojson: any) => {
+			let shapeGeoJson = L.geoJson(geojson)
+			mapContainer.fitBounds(shapeGeoJson.getBounds())
+			shapeGeoJson.addTo(mapContainer)
+			resolve(shapeGeoJson)
+		})
 	})
 }
 
-export function addLakeShapeToMap(lakeId: LakeCode) {
-	if (shapeGeoJson != null) {
-		mapContainer.removeLayer(shapeGeoJson)
-	}
-	shp(LakeData[lakeId].browserPath).then((geojson: any) => {
-		shapeGeoJson = L.geoJson(geojson)
-		mapContainer.fitBounds(shapeGeoJson.getBounds())
-		shapeGeoJson.addTo(mapContainer)
-	})
-}
-function changeEETileLayer(currentLayerType: EELayerType) {
-	if (EEResponseTiles == null || EEResponseTiles == undefined) {
+
+export function addEETileLayer(url: string, mapContainer: any) {
+	if (EEResponseTileData == null || EEResponseTileData == undefined) {
 		return
 	}
-	if (geeTileLayer != null) {
-		mapContainer.removeLayer(geeTileLayer)
-	}
-	geeTileLayer = L.tileLayer(EEResponseTiles[currentLayerType].urlFormat, {
+	let geeTileLayer = L.tileLayer(url, {
 		maxZoom: 19,
 		attribution: 'Map data &copy; <a href="https://www.google.com/earth/engine/">Google Earth Engine</a>'
 	});
 	geeTileLayer.addTo(mapContainer);
-	inputDisabledSidebar.set(false)
-	fromWaterData.set(EEResponseTiles[6].data! as number)
-	toWaterData.set(EEResponseTiles[7].data! as number)
+	return geeTileLayer
 }
 
-function addEETileLayer(lakeId: LakeCode, indices: string, start: string, end: string) {
+export function updateEEData(lakeId: LakeCode, start: string, end: string) {
 	let GETParams = new URLSearchParams()
 	GETParams.append("AOIId", lakeId.toString())
-	GETParams.append("indices", indices)
 	GETParams.append("startDate", start)
 	GETParams.append("endDate", end)
 
 	fetch("/ee/tile?" + GETParams.toString()).then((data) => {
-		data.json().then((val: EETileResponse) => {
-			EEResponseTiles = val
-			if (geeTileLayer != null) {
-				mapContainer.removeLayer(geeTileLayer)
-			}
-			geeTileLayer = L.tileLayer(val[currentLayerType].urlFormat, {
-				maxZoom: 19,
-				attribution: 'Map data &copy; <a href="https://www.google.com/earth/engine/">Google Earth Engine</a>'
-			});
-			geeTileLayer.addTo(mapContainer);
-			inputDisabledSidebar.set(false)
+		data.json().then((val: EEResponseData) => {
+			setEEResponseTileData(val.tile)
+			setEEResponseStatData(val.data)
 
-			fromWaterData.set(val[4].data! as number)
-			toWaterData.set(val[5].data! as number)
+			currentLakeId.set(lakeId)
 		})
 	})
 
