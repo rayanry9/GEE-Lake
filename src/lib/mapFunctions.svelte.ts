@@ -3,7 +3,8 @@ import { LakeData, LakeCode, type EEResponseData } from "./mapData";
 import shp from "shpjs"
 //@ts-ignore
 import L from "leaflet"
-import { currentLakeId, EEResponseTileData, setEEResponseStatData, setEEResponseTileData } from "./mapState";
+import { acquiredFinalDate, acquiredStartDate, currentLakeId, dateChangeObs, EEResponseTileData, endDate, setEEResponseStatData, setEEResponseTileData, startDate } from "./mapState";
+import { get } from "svelte/store";
 
 export function createMap(container: HTMLElement): any {
 
@@ -52,8 +53,13 @@ export function updateEEData(lakeId: LakeCode, start: string, end: string) {
 		data.json().then((val: EEResponseData) => {
 			setEEResponseTileData(val.tile)
 			setEEResponseStatData(val.data)
+			acquiredStartDate.set(new Date(val.satInitialDate).toDateString())
+			acquiredFinalDate.set(new Date(val.satFinalDate).toDateString())
 
 			currentLakeId.set(lakeId)
+			startDate.set(start)
+			endDate.set(end)
+			dateChangeObs.set(!get(dateChangeObs))
 		})
 	})
 

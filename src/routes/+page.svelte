@@ -9,8 +9,8 @@
 <NavBar />
 <SelectionBar />
 <div class="my-6 flex h-full w-full flex-row space-x-1 px-6">
-	<Map />
-	<Map />
+	<Map isInitialMap={true} />
+	<Map isInitialMap={false} />
 </div>
 <DataTable />
 <Footer />

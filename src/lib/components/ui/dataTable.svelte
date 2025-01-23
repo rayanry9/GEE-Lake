@@ -1,11 +1,19 @@
 <script lang="ts">
-	import { EEStatType, type EEStat } from '$lib/mapData';
-	import { currentLakeId, EEResponseStatData } from '$lib/mapState';
+	import { type EEStat } from '$lib/mapData';
+	import { currentLakeId, dateChangeObs, EEResponseStatData } from '$lib/mapState';
 	let initial = $state<EEStat>({ waterBody: 0, treeCover: 0, soil: 0, building: 0 });
 	let final = $state<EEStat>({ waterBody: 0, treeCover: 0, soil: 0, building: 0 });
 	let change = $state<EEStat>({ waterBody: 0, treeCover: 0, soil: 0, building: 0 });
 
 	currentLakeId.subscribe(() => {
+		if (EEResponseStatData == null || EEResponseStatData == undefined) {
+			return;
+		}
+		initial = EEResponseStatData[0];
+		final = EEResponseStatData[1];
+		change = EEResponseStatData[2];
+	});
+	dateChangeObs.subscribe(() => {
 		if (EEResponseStatData == null || EEResponseStatData == undefined) {
 			return;
 		}
@@ -43,10 +51,17 @@
 			</tr>
 			<tr class="*:py-2">
 				<th scope="row">Change</th>
-				<td>{change.building.toFixed(2)}</td>
-				<td>{change.soil.toFixed(2)}</td>
-				<td>{change.treeCover.toFixed(2)}</td>
-				<td>{change.waterBody.toFixed(2)}</td>
+				<td class={change.building < 0 ? 'text-green-500' : 'text-red-400'}
+					>{change.building.toFixed(2)}</td
+				>
+				<td class={change.soil > 0 ? 'text-green-500' : 'text-red-400'}>{change.soil.toFixed(2)}</td
+				>
+				<td class={change.treeCover > 0 ? 'text-green-500' : 'text-red-400'}
+					>{change.treeCover.toFixed(2)}</td
+				>
+				<td class={change.waterBody > 0 ? 'text-green-500' : 'text-red-400'}
+					>{change.waterBody.toFixed(2)}</td
+				>
 			</tr>
 		</tbody>
 	</table>

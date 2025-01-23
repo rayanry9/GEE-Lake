@@ -7,15 +7,17 @@ export interface EEStat {
 	treeCover: number,
 	waterBody: number
 }
-
 export enum EEStatType {
 	Initial = 0,
 	Final = 1,
 	Change = 2
 }
+
 export interface EEResponseData {
 	tile: Array<string>,
-	data: Array<EEStat>
+	data: Array<EEStat>,
+	satInitialDate: string,
+	satFinalDate: string
 }
 
 export enum WaterDataType {
@@ -26,16 +28,16 @@ export enum WaterDataType {
 export const enum EELayerType {
 	FinalClassification = 0,
 	InitialClassification = 1,
-	StartImage = 2,
-	RecentImage = 3,
+	RecentImage = 2,
+	StartImage = 3,
 	FromWater = 4,
 	ToWater = 5
 }
 export const LayerType = [
 	"Final Classification",
 	"Initial Classificaiton",
-	"Start Image",
 	"Recent Image",
+	"Start Image",
 	"From Water",
 	"To Water"
 ]

@@ -34,7 +34,9 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 
 	let responseData: EEResponseData = {
 		tile: new Array<string>(),
-		data: new Array<EEStat>()
+		data: new Array<EEStat>(),
+		satInitialDate: "",
+		satFinalDate: ""
 	}
 	let AOI: any
 
@@ -64,55 +66,66 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 
 	let startImage = getStartImage(dailyMedianDiffStartCollectionImg)
 	let recentImage = getRecentImage(dailyMedianDiffStopCollectionImg)
-	let initialClassifcation = classification(startImage).clip(AOI)
-	let finalClassifcation = classification(recentImage).clip(AOI)
+	let initialClassification = classification(startImage).clip(AOI)
+	let finalClassification = classification(recentImage).clip(AOI)
 
-	let initialNotClass5 = initialClassifcation.updateMask(initialClassifcation.neq(5))
-	let finalClass5 = finalClassifcation.updateMask(finalClassifcation.eq(5))
+	let initialNotClass5 = initialClassification.updateMask(initialClassification.neq(5))
+	let finalClass5 = finalClassification.updateMask(finalClassification.eq(5))
 	let toWater = initialNotClass5.and(finalClass5)
-	let initialClass5 = initialClassifcation.updateMask(initialClassifcation.eq(5))
-	let finalNotClass5 = finalClassifcation.updateMask(finalClassifcation.neq(5))
+	let initialClass5 = initialClassification.updateMask(initialClassification.eq(5))
+	let finalNotClass5 = finalClassification.updateMask(finalClassification.neq(5))
 	let fromWater = initialClass5.and(finalNotClass5)
 
-	let initialClassArea = calculateClassAreas(initialClassifcation, AOI, 10)
-	let finalClassArea = calculateClassAreas(finalClassifcation, AOI, 10)
+
+	let initialDate = ee.Date(initialClassification.get('system:time_start')).format('YYYY-MM-dd');
+	let finalDate = ee.Date(finalClassification.get('system:time_start')).format('YYYY-MM-dd');
+
+	let initialClassArea = calculateClassAreas(initialClassification, AOI, 10)
+	let finalClassArea = calculateClassAreas(finalClassification, AOI, 10)
 
 	let changeInArea = calculateAreaChange(initialClassArea, finalClassArea)
 
 	let allData: any[] = []
 
 	Console.task("Started Computing Images Google Earth Engine")
-
 	try {
 		allData = await Promise.all([
-			getMapId(finalClassifcation, dataVisParams),
-			getMapId(initialClassifcation, dataVisParams),
-			getMapId(startImage, rgbVisParams),
+			getMapId(finalClassification, dataVisParams),
+			getMapId(initialClassification, dataVisParams),
 			getMapId(recentImage, rgbVisParams),
+			getMapId(startImage, rgbVisParams),
 			getMapId(fromWater, { min: 0, max: 1, palette: ['red'] }),
 			getMapId(toWater, { min: 0, max: 1, palette: ['green'] }),
 			//getInfo(ee.Number(fromWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01)),
 			//getInfo(ee.Number(toWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01))
-		])
-
-		allData.forEach((element) => {
-			responseData.tile.push(element.urlFormat)
-		});
-
-		allData = await Promise.all([
 			getInfo(initialClassArea),
 			getInfo(finalClassArea),
 			getInfo(changeInArea),
+			getInfo(initialDate),
+			getInfo(finalDate)
 		])
 
-		allData.forEach((element) => {
-			responseData.data.push({
-				building: element["building"] as number,
-				soil: element["soil"] as number,
-				treeCover: element["treeCover"] as number,
-				waterBody: element["waterBody"] as number
-			})
+		allData.forEach((element, idx) => {
+			if (idx == 10) {
+				responseData.satFinalDate = element
+			} else if (idx == 9) {
+				responseData.satInitialDate = element
+			} else if (idx < 9 && idx >= 6) {
+				responseData.data.push({
+					building: element["building"] as number,
+					soil: element["soil"] as number,
+					treeCover: element["treeCover"] as number,
+					waterBody: element["waterBody"] as number
+				})
+
+			} else if (idx < 6) {
+				responseData.tile.push(element.urlFormat)
+			}
 		});
+
+		allData = await Promise.all([
+		])
+
 
 		Console.success("Google Earth Engine Images Computed")
 	} catch (e) {
