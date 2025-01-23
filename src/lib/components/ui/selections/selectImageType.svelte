@@ -5,13 +5,13 @@
 </script>
 
 <div class="flex flex-col">
-	<div>Select Lake</div>
+	<div class="mb-1 px-2 text-sm text-black/50">Select Image Type</div>
 	<select
 		bind:value={selectValue}
 		onchange={(_) => {
 			currentLayerType.set(selectValue);
 		}}
-		class="rounded-md bg-sky-100 px-3 py-2 text-black *:my-2"
+		class="rounded-md bg-white py-2 pl-3 pr-24 text-black outline outline-slate-300 *:my-2 hover:bg-sky-50"
 	>
 		<option value={EELayerType.FinalClassification}>Classified Image</option>
 		<option value={EELayerType.RecentImage}>True Color Image</option>

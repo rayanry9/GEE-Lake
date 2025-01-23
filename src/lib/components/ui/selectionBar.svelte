@@ -4,7 +4,7 @@
 	import SelectLake from './selections/selectLake.svelte';
 </script>
 
-<div class="flex flex-row">
+<div class="flex w-full flex-row justify-center space-x-12">
 	<SelectLake />
 	<DataSelect isInitial={true} />
 	<DataSelect isInitial={false} />
