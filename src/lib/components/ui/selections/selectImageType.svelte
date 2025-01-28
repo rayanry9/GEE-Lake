@@ -13,8 +13,8 @@
 		}}
 		class="rounded-md bg-white py-2 pl-3 pr-24 text-black outline outline-slate-300 *:my-2 hover:bg-sky-50"
 	>
-		<option value={EELayerType.FinalClassification}>Classified Image</option>
-		<option value={EELayerType.RecentImage}>True Color Image</option>
+		<option value={EELayerType.FinalClassification}>Feature Image</option>
+		<option value={EELayerType.RecentImage}>Original Satellite Image</option>
 		<option value={EELayerType.FromWater}>Change Map</option>
 	</select>
 </div>

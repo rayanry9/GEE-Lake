@@ -28,9 +28,9 @@
 		<thead class="border border-black bg-sky-100 text-lg">
 			<tr class="*:py-2">
 				<th scope="col">Type</th>
-				<th scope="col">Building</th>
+				<th scope="col">Built Up</th>
 				<th scope="col">Soil</th>
-				<th scope="col">Tree cover</th>
+				<th scope="col">Vegetation</th>
 				<th scope="col">Water Body</th>
 			</tr>
 		</thead>

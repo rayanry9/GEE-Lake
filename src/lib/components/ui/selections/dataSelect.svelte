@@ -12,15 +12,26 @@
 	} else {
 		value = new Date().toISOString().substring(0, 10);
 	}
+	let max = $state(new Date().toISOString().substring(0, 10));
+	if (isInitial) {
+		endDate.subscribe((val) => {
+			if (val == null || val == undefined || val == '') {
+				return;
+			}
+			max = val;
+		});
+	}
 </script>
 
 <div class="flex h-full flex-col justify-between">
 	<div class="mb-1 px-2 text-sm text-black/50">
-		{#if isInitial}Initial Date
-		{:else}Final Date{/if}
+		{#if isInitial}First Date
+		{:else}Second Date{/if}
 	</div>
 	<input
 		class="rounded-lg px-5 py-1.5 outline outline-slate-300 hover:bg-sky-50"
+		min="2018-01-01"
+		{max}
 		onchange={() => {
 			if (isInitial) {
 				updateEEData(get(currentLakeId), value, get(endDate));

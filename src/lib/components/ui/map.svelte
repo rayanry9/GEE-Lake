@@ -122,7 +122,9 @@
 	<div
 		class="absolute bottom-4 right-0 border-l border-t border-black transition-all duration-300 ease-in-out {legendState
 			? 'translate-x-0'
-			: 'translate-x-[100%]'}  z-[1000] flex flex-col items-center rounded-tl-md bg-white px-6 py-3"
+			: 'translate-x-[100%]'} {isInitialMap
+			? 'hidden'
+			: 'visible'} z-[1000] flex flex-col items-center rounded-tl-md bg-white px-6 py-3"
 	>
 		<div
 			class="absolute left-[calc(-1rem)] top-[calc(50%-1.5rem)] z-[900] flex h-12 w-4 flex-row items-center border-b border-l border-t border-black bg-white py-4 pl-1"
@@ -139,11 +141,11 @@
 		<div class="flex flex-col space-y-3 *:items-center *:space-x-3">
 			<div class="flex flex-row">
 				<div class="size-5 !bg-red-500"></div>
-				<p>Building</p>
+				<p>Built Up</p>
 			</div>
 			<div class="flex flex-row">
 				<div class="size-5 !bg-green-500"></div>
-				<p>Tree Cover</p>
+				<p>Vegetation</p>
 			</div>
 			<div class="flex flex-row">
 				<div class="size-5 !bg-yellow-500"></div>
