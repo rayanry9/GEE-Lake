@@ -55,7 +55,7 @@ export async function validateSessionToken(token: string): Promise<Session | nul
 	}
 	if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 12 * DAYS_TO_EXPIRE) {
 		session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * DAYS_TO_EXPIRE);
-		await sql` UPDATE users SET expires_at = ${session.expiresAt} WHERE id = ${session.userId} `
+		await sql` UPDATE users SET session_expiration= ${session.expiresAt} WHERE id = ${session.userId} `
 	}
 	return session
 }

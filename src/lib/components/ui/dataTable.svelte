@@ -28,10 +28,10 @@
 		<thead class="border border-black bg-sky-100 text-lg">
 			<tr class="*:py-2">
 				<th scope="col">Type</th>
-				<th scope="col">Built Up</th>
-				<th scope="col">Soil</th>
-				<th scope="col">Vegetation</th>
-				<th scope="col">Water Body</th>
+				<th scope="col">Built Up (Hectares)</th>
+				<th scope="col">Soil (Hectares)</th>
+				<th scope="col">Vegetation (Hectares)</th>
+				<th scope="col">Water Body (Hectares)</th>
 			</tr>
 		</thead>
 		<tbody class=" *:text-center even:*:bg-slate-100">
