@@ -1,7 +1,7 @@
 import { writable } from "svelte/store"
-import { EELayerType, LakeCode, type EEStat } from "./mapData"
+import { EELayerType, LakeCode, type EEResponseData, type EEStat } from "./mapData"
 
-export const currentLakeId = writable<LakeCode>()
+export const currentLakeId = writable<LakeCode>(0)
 export const currentLayerType = writable<EELayerType>(EELayerType.FinalClassification)
 export const dateChangeObs = writable(false)
 let today = new Date()
@@ -12,8 +12,8 @@ export const endDate = writable(new Date().toISOString().substring(0, 10).toStri
 export const acquiredStartDate = writable(new Date().toDateString())
 export const acquiredFinalDate = writable(new Date().toDateString())
 
-export let EEResponseTileData = new Array<string>
-export function setEEResponseTileData(val: Array<string>) {
+export let EEResponseTileData = new Array<Array<string>>
+export function setEEResponseTileData(val: Array<Array<string>>) {
 	EEResponseTileData = val
 }
 
@@ -22,6 +22,12 @@ export function setEEResponseStatData(val: Array<EEStat>) {
 	EEResponseStatData = val
 }
 
+export let builtUpLayer = writable(false);
+export let vegetationLayer = writable(false);
+export let soilLayer = writable(false);
+export let waterLayer = writable(false);
+
+export let computingImages = writable(true)
 
 export const mapOrigin = writable<any>()
 export const mapZoom = writable<any>()

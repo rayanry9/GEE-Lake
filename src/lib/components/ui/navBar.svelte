@@ -9,7 +9,10 @@
 	</div>
 	<div class="flex flex-row items-center space-x-6">
 		<div><a href="/about">About</a></div>
-		<div><a href="/tutorial">Tutorial</a></div>
+		<!--<div><a href="/tutorial">Tutorial</a></div>-->
+		<div>
+			<a href="tutorial.pdf" target="_blank" rel="noopener noreferrer">Tutorial</a>
+		</div>
 		<div><a href="/contact">Contact</a></div>
 	</div>
 </div>

@@ -14,7 +14,7 @@ export enum EEStatType {
 }
 
 export interface EEResponseData {
-	tile: Array<string>,
+	tile: Array<Array<string>>,
 	data: Array<EEStat>,
 	satInitialDate: string,
 	satFinalDate: string

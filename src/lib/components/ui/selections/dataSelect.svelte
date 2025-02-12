@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { updateEEData } from '$lib/mapFunctions.svelte';
-	import { currentLakeId, endDate, startDate } from '$lib/mapState';
+	import { computingImages, currentLakeId, endDate, startDate } from '$lib/mapState';
 	import { get } from 'svelte/store';
 
 	let { isInitial }: { isInitial: boolean } = $props();
@@ -21,6 +21,11 @@
 			max = val;
 		});
 	}
+
+	let compute = $state(true);
+	computingImages.subscribe((val) => {
+		compute = val;
+	});
 </script>
 
 <div class="flex h-full flex-col justify-between">
@@ -29,9 +34,10 @@
 		{:else}Second Date{/if}
 	</div>
 	<input
-		class="rounded-lg px-5 py-1.5 outline outline-slate-300 hover:bg-sky-50"
+		class="rounded-lg px-5 py-1.5 outline outline-slate-300 hover:bg-sky-50 disabled:brightness-75"
 		min="2018-01-01"
 		{max}
+		disabled={compute}
 		onchange={() => {
 			if (isInitial) {
 				updateEEData(get(currentLakeId), value, get(endDate));

@@ -33,11 +33,15 @@ function getInfo(number: any): Promise<any> {
 export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number): Promise<EEResponseData | null> {
 
 	let responseData: EEResponseData = {
-		tile: new Array<string>(),
+		tile: new Array<Array<string>>(4),
 		data: new Array<EEStat>(),
 		satInitialDate: "",
 		satFinalDate: ""
 	}
+	responseData.tile[0] = new Array<string>()
+	responseData.tile[1] = new Array<string>()
+	responseData.tile[2] = new Array<string>()
+	responseData.tile[3] = new Array<string>()
 	let AOI: any
 
 	try {
@@ -90,8 +94,14 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 	Console.task("Started Computing Images Google Earth Engine")
 	try {
 		allData = await Promise.all([
-			getMapId(finalClassification, dataVisParams),
-			getMapId(initialClassification, dataVisParams),
+			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(2)), dataVisParams),
+			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(3)), dataVisParams),
+			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(4)), dataVisParams),
+			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(5)), dataVisParams),
+			getMapId(initialClassification.updateMask(initialClassification.select('class').eq(2)), dataVisParams),
+			getMapId(initialClassification.updateMask(initialClassification.select('class').eq(3)), dataVisParams),
+			getMapId(initialClassification.updateMask(initialClassification.select('class').eq(4)), dataVisParams),
+			getMapId(initialClassification.updateMask(initialClassification.select('class').eq(5)), dataVisParams),
 			getMapId(recentImage, rgbVisParams),
 			getMapId(startImage, rgbVisParams),
 			getMapId(fromWater, { min: 0, max: 1, palette: ['red'] }),
@@ -105,12 +115,14 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 			getInfo(finalDate)
 		])
 
+		console.log(responseData)
+
 		allData.forEach((element, idx) => {
-			if (idx == 10) {
+			if (idx == 16) {
 				responseData.satFinalDate = element
-			} else if (idx == 9) {
+			} else if (idx == 15) {
 				responseData.satInitialDate = element
-			} else if (idx < 9 && idx >= 6) {
+			} else if (idx < 15 && idx >= 12) {
 				responseData.data.push({
 					building: element["building"] as number,
 					soil: element["soil"] as number,
@@ -118,17 +130,22 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 					waterBody: element["waterBody"] as number
 				})
 
-			} else if (idx < 6) {
-				responseData.tile.push(element.urlFormat)
+			} else if (idx < 12 && idx >= 10) {
+				responseData.tile[3].push(element.urlFormat)
+			} else if (idx < 10 && idx >= 8) {
+				responseData.tile[2].push(element.urlFormat)
+			} else if (idx < 8 && idx >= 4) {
+				responseData.tile[1].push(element.urlFormat)
+			}
+			else if (idx < 4) {
+				responseData.tile[0].push(element.urlFormat)
 			}
 		});
-
-		allData = await Promise.all([
-		])
 
 
 		Console.success("Google Earth Engine Images Computed")
 	} catch (e) {
+		console.log(e)
 		Console.error("Google Earth Engine could not compute any/all of the images")
 		return null
 	}

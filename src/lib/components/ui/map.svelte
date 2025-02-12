@@ -1,9 +1,10 @@
 <script lang="ts">
-	import type { EELayerType } from '$lib/mapData';
+	import { EELayerType } from '$lib/mapData';
 	import { addEETileLayer, addLakeShapeToMap, createMap } from '$lib/mapFunctions.svelte';
 	import {
 		acquiredFinalDate,
 		acquiredStartDate,
+		builtUpLayer,
 		currentLakeId,
 		currentLayerType,
 		dateChangeObs,
@@ -11,27 +12,78 @@
 		getSudoMap,
 		mapOrigin,
 		mapZoom,
-		setSudoMap
+		setSudoMap,
+		soilLayer,
+		vegetationLayer,
+		waterLayer
 	} from '$lib/mapState';
 	import type { Action } from 'svelte/action';
 	import { get } from 'svelte/store';
 
 	let mapContainer: any;
 	let localLakeShape: any = null;
-	let localGeeTileLayer: any = null;
+	let localGeeTileLayerBuiltUp: any = null;
+	let localGeeTileLayerVegetation: any = null;
+	let localGeeTileLayerSoil: any = null;
+	let localGeeTileLayerWater: any = null;
+	let localGeeTileLayerSatelliteImage: any = null;
+
+	let checkedBuiltUp = $state(false);
+	let checkedVegetation = $state(false);
+	let checkedSoil = $state(false);
+	let checkedWater = $state(false);
+
+	let currLayer = $state<EELayerType>(0);
+	currentLayerType.subscribe((val) => {
+		currLayer = val;
+	});
+
 	let { isInitialMap = false }: { isInitialMap: boolean } = $props();
 
-	const eeResponseFunc = (type: EELayerType) => {
-		type = isInitialMap ? type + 1 : type;
+	const eeResponseFunc = () => {
 		if (EEResponseTileData == undefined || EEResponseTileData == null) {
 			return;
 		}
-		let url = EEResponseTileData[type];
-		if (url != undefined) {
-			if (localGeeTileLayer !== null) {
-				mapContainer.removeLayer(localGeeTileLayer);
+		if (EEResponseTileData[currLayer] == undefined) {
+			return;
+		}
+		if (localGeeTileLayerSatelliteImage != null) {
+			mapContainer.removeLayer(localGeeTileLayerSatelliteImage);
+		}
+		if (localGeeTileLayerBuiltUp != null) {
+			mapContainer.removeLayer(localGeeTileLayerBuiltUp);
+		}
+		if (localGeeTileLayerVegetation != null) {
+			mapContainer.removeLayer(localGeeTileLayerVegetation);
+		}
+		if (localGeeTileLayerSoil != null) {
+			mapContainer.removeLayer(localGeeTileLayerSoil);
+		}
+		if (localGeeTileLayerWater != null) {
+			mapContainer.removeLayer(localGeeTileLayerWater);
+		}
+
+		if (currLayer == EELayerType.RecentImage) {
+			if (isInitialMap) {
+				localGeeTileLayerSatelliteImage = addEETileLayer(
+					EEResponseTileData[currLayer][0],
+					mapContainer
+				);
+			} else {
+				localGeeTileLayerSatelliteImage = addEETileLayer(
+					EEResponseTileData[currLayer][1],
+					mapContainer
+				);
 			}
-			localGeeTileLayer = addEETileLayer(url, mapContainer);
+		} else if (currLayer == EELayerType.FinalClassification) {
+			builtUpLayer.set(false);
+			waterLayer.set(false);
+			soilLayer.set(false);
+			vegetationLayer.set(false);
+			builtUpLayer.set(true);
+			waterLayer.set(true);
+			soilLayer.set(true);
+			vegetationLayer.set(true);
 		}
 	};
 
@@ -44,7 +96,7 @@
 			addLakeShapeToMap(id, mapContainer).then((val) => {
 				localLakeShape = val;
 			});
-			eeResponseFunc(get(currentLayerType));
+			eeResponseFunc();
 		});
 
 		currentLayerType.subscribe(eeResponseFunc);
@@ -54,7 +106,75 @@
 		}
 
 		dateChangeObs.subscribe((_) => {
-			eeResponseFunc(get(currentLayerType));
+			eeResponseFunc();
+		});
+
+		builtUpLayer.subscribe((val) => {
+			checkedBuiltUp = val;
+			if (currLayer == EELayerType.FinalClassification) {
+				let currType = EELayerType.FinalClassification;
+				if (isInitialMap) {
+					currType = EELayerType.InitialClassification;
+				}
+
+				if (val && localGeeTileLayerBuiltUp == null) {
+					localGeeTileLayerBuiltUp = addEETileLayer(EEResponseTileData[currType][0], mapContainer);
+				} else if (!val && localGeeTileLayerBuiltUp != null) {
+					mapContainer.removeLayer(localGeeTileLayerBuiltUp);
+					localGeeTileLayerBuiltUp = null;
+				}
+			}
+		});
+		vegetationLayer.subscribe((val) => {
+			checkedVegetation = val;
+			if (currLayer == EELayerType.FinalClassification) {
+				let currType = EELayerType.FinalClassification;
+				if (isInitialMap) {
+					currType = EELayerType.InitialClassification;
+				}
+
+				if (val && localGeeTileLayerVegetation == null) {
+					localGeeTileLayerVegetation = addEETileLayer(
+						EEResponseTileData[currType][1],
+						mapContainer
+					);
+				} else if (!val && localGeeTileLayerVegetation != null) {
+					mapContainer.removeLayer(localGeeTileLayerVegetation);
+					localGeeTileLayerVegetation = null;
+				}
+			}
+		});
+		soilLayer.subscribe((val) => {
+			checkedSoil = val;
+			if (currLayer == EELayerType.FinalClassification) {
+				let currType = EELayerType.FinalClassification;
+				if (isInitialMap) {
+					currType = EELayerType.InitialClassification;
+				}
+
+				if (val && localGeeTileLayerSoil == null) {
+					localGeeTileLayerSoil = addEETileLayer(EEResponseTileData[currType][2], mapContainer);
+				} else if (!val && localGeeTileLayerSoil != null) {
+					mapContainer.removeLayer(localGeeTileLayerSoil);
+					localGeeTileLayerSoil = null;
+				}
+			}
+		});
+		waterLayer.subscribe((val) => {
+			checkedWater = val;
+			if (currLayer == EELayerType.FinalClassification) {
+				let currType = EELayerType.FinalClassification;
+				if (isInitialMap) {
+					currType = EELayerType.InitialClassification;
+				}
+
+				if (val && localGeeTileLayerWater == null) {
+					localGeeTileLayerWater = addEETileLayer(EEResponseTileData[currType][3], mapContainer);
+				} else if (!val && localGeeTileLayerWater != null) {
+					mapContainer.removeLayer(localGeeTileLayerWater);
+					localGeeTileLayerWater = null;
+				}
+			}
 		});
 
 		mapContainer.on('mouseover', () => {
@@ -138,22 +258,61 @@
 			<div class="h-full w-1 rounded-sm bg-slate-300 py-4"></div>
 		</div>
 		<div class="mb-4 text-lg font-bold">Legend</div>
+
 		<div class="flex flex-col space-y-3 *:items-center *:space-x-3">
 			<div class="flex flex-row">
-				<div class="size-5 !bg-red-500"></div>
-				<p>Built Up</p>
+				<div class="size-5 !bg-[#808000]"></div>
+				<p class="grow">Built Up</p>
+				{#if currLayer == EELayerType.FinalClassification}
+					<input
+						oninput={(ev: any) => {
+							builtUpLayer.set(ev.target.checked);
+						}}
+						class=""
+						bind:checked={checkedBuiltUp}
+						type="checkbox"
+					/>
+				{/if}
 			</div>
 			<div class="flex flex-row">
-				<div class="size-5 !bg-green-500"></div>
-				<p>Vegetation</p>
+				<div class="size-5 !bg-[#A0522D]"></div>
+				<p class="grow">Vegetation</p>
+				{#if currLayer == EELayerType.FinalClassification}
+					<input
+						oninput={(ev: any) => {
+							vegetationLayer.set(ev.target.checked);
+						}}
+						bind:checked={checkedVegetation}
+						type="checkbox"
+					/>
+				{/if}
 			</div>
 			<div class="flex flex-row">
-				<div class="size-5 !bg-yellow-500"></div>
-				<p>Soil</p>
+				<div class="size-5 !bg-[#FFA500]"></div>
+				<p class="grow">Soil</p>
+				{#if currLayer == EELayerType.FinalClassification}
+					<input
+						oninput={(ev: any) => {
+							soilLayer.set(ev.target.checked);
+						}}
+						bind:checked={checkedSoil}
+						type="checkbox"
+					/>
+				{/if}
 			</div>
 			<div class="flex flex-row">
-				<div class="size-5 !bg-blue-500"></div>
-				<p>Water</p>
+				<div class="size-5 !bg-[#6495ED]"></div>
+				<p class="grow">Water</p>
+
+				{#if currLayer == EELayerType.FinalClassification}
+					<input
+						oninput={(ev: any) => {
+							waterLayer.set(ev.target.checked);
+						}}
+						bind:checked={checkedWater}
+						type="checkbox"
+					/>
+				{/if}
 			</div>
 		</div>
 	</div>

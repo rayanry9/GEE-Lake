@@ -11,21 +11,14 @@
 	<div class="flex flex-row">
 		<img alt="Site Screenshot" src="/about-1.png" class="w-1/2 object-cover" />
 		<div class="max-w-[50%] px-12 py-4">
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer aliquam libero non posuere
-			scelerisque. Duis ante lorem, porta sodales convallis vel, efficitur ut nunc. Pellentesque id
-			elementum odio, sit amet vulputate nibh. Ut urna metus, euismod a egestas non, consequat
-			consequat lorem. Sed quis augue tristique, rhoncus ipsum in, hendrerit augue. Cras id interdum
-			dui. Phasellus tempor, nulla rhoncus maximus semper, sapien massa consectetur urna, non
-			iaculis sem arcu sed nisi. Proin tincidunt iaculis varius. Mauris vel purus velit. Nunc
-			laoreet leo ac quam cursus, eu molestie nibh elementum. Aenean sit amet porttitor lorem.
-			Aenean odio urna, elementum ultricies sem non, rhoncus fringilla neque. Suspendisse suscipit,
-			turpis et hendrerit aliquet, lacus augue imperdiet nisl, vitae elementum arcu est at ligula.
-			Cras imperdiet accumsan magna egestas eleifend. Sed fringilla suscipit eros, in pretium nunc.
-			Cras mauris ante, congue a ex sed, suscipit eleifend lacus. Maecenas facilisis metus magna, id
-			consectetur urna venenatis at. Sed facilisis diam ut placerat mattis. Maecenas eu tempus
-			velit, nec varius felis. Nunc non eros nec urna pretium sollicitudin eget quis nulla. Praesent
-			a odio ut mi tempor sagittis ut in orci. Sed non nisi vulputate, dapibus ligula in, bibendum
-			sem.
+			Welcome to BlueWatcher for water conservation and sustainable water management. We aim to
+			identify the unprotected water bodies and provide practical guidance for preserving our most
+			precious lakes. From sustainable water management solutions to community initiatives and
+			educational resources, our interactive web application empowers individuals and government
+			organizations to combat water scarcity, protect ecosystems, and ensure a sustainable future.
+			Join the movement to conserve water today! Through educational content, innovative strategies,
+			and actionable insights, we provide the actual scenario to combat water scarcity, promote
+			efficient usage, and protect aquatic ecosystems
 		</div>
 	</div>
 	<div class="flex flex-row">
