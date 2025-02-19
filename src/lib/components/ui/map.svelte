@@ -261,28 +261,28 @@
 
 		<div class="flex flex-col space-y-3 *:items-center *:space-x-3">
 			<div class="flex flex-row">
-				<div class="size-5 !bg-[#808000]"></div>
-				<p class="grow">Built Up</p>
-				{#if currLayer == EELayerType.FinalClassification}
-					<input
-						oninput={(ev: any) => {
-							builtUpLayer.set(ev.target.checked);
-						}}
-						class=""
-						bind:checked={checkedBuiltUp}
-						type="checkbox"
-					/>
-				{/if}
-			</div>
-			<div class="flex flex-row">
 				<div class="size-5 !bg-[#A0522D]"></div>
-				<p class="grow">Vegetation</p>
+				<p class="grow">Built Up</p>
 				{#if currLayer == EELayerType.FinalClassification}
 					<input
 						oninput={(ev: any) => {
 							vegetationLayer.set(ev.target.checked);
 						}}
+						class=""
 						bind:checked={checkedVegetation}
+						type="checkbox"
+					/>
+				{/if}
+			</div>
+			<div class="flex flex-row">
+				<div class="size-5 !bg-[#808000]"></div>
+				<p class="grow">Vegetation</p>
+				{#if currLayer == EELayerType.FinalClassification}
+					<input
+						oninput={(ev: any) => {
+							builtUpLayer.set(ev.target.checked);
+						}}
+						bind:checked={checkedBuiltUp}
 						type="checkbox"
 					/>
 				{/if}

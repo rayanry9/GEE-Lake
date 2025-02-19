@@ -20,6 +20,6 @@
 	>
 		<option value={EELayerType.FinalClassification}>Feature Image</option>
 		<option value={EELayerType.RecentImage}>Original Satellite Image</option>
-		<!--<option value={EELayerType.FromWater}>Change Map</option>-->
+		<option value={EELayerType.FromWater}>Change Map</option>
 	</select>
 </div>
