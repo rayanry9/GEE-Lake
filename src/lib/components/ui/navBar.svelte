@@ -6,6 +6,9 @@
 		<a href="https://www.iith.ac.in"
 			><img src="/iith-logo.png" alt="IITH Logo" width={50} class="ml-4" /></a
 		>
+		<a href="/"
+			><img src="/district.png" alt="Telangana Government Logo" width={50} class="ml-4" /></a
+		>
 	</div>
 	<div class="flex flex-row items-center space-x-6">
 		<div><a href="/about">About</a></div>
