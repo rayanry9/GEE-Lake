@@ -4,6 +4,8 @@
 	import Map from '$lib/components/ui/map.svelte';
 	import NavBar from '$lib/components/ui/navBar.svelte';
 	import SelectionBar from '$lib/components/ui/selectionBar.svelte';
+
+	let isDataShown = $state(true);
 </script>
 
 <NavBar />
@@ -12,8 +14,35 @@
 	<Map isInitialMap={true} />
 	<Map isInitialMap={false} />
 </div>
-<DataTable />
-<Footer />
+<div class="relative w-full pt-4">
+	{#if isDataShown}
+		<div
+			onclick={() => {
+				isDataShown = false;
+			}}
+			role="button"
+			class="absolute -top-2 left-[calc(50%-20px)] cursor-pointer bg-white px-4 text-center outline outline-1"
+		>
+			v
+		</div>
+	{:else}
+		<div
+			onclick={() => {
+				isDataShown = true;
+			}}
+			role="button"
+			class="absolute -top-2 left-[calc(50%-20px)] cursor-pointer bg-white px-4 text-center outline outline-1"
+		>
+			^
+		</div>
+	{/if}
+	{#if isDataShown}
+		<div class="">
+			<DataTable />
+			<Footer />
+		</div>
+	{/if}
+</div>
 
 <link
 	rel="stylesheet"
