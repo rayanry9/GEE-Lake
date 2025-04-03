@@ -1,10 +1,7 @@
 <script lang="ts">
-	import { updateEEData } from '$lib/mapFunctions.svelte';
 	import { computingImages, currentLakeId, endDate, startDate } from '$lib/mapState';
-	import { get } from 'svelte/store';
 
-	let { isInitial }: { isInitial: boolean } = $props();
-	let value = $state('');
+	let { value = $bindable(), isInitial }: { value: string; isInitial: boolean } = $props();
 	if (isInitial) {
 		let today = new Date();
 		today = new Date(today.getFullYear() - 1, today.getMonth(), today.getDay());
@@ -39,11 +36,11 @@
 		{max}
 		disabled={compute}
 		onchange={() => {
-			if (isInitial) {
-				updateEEData(get(currentLakeId), value, get(endDate));
-			} else {
-				updateEEData(get(currentLakeId), get(startDate), value);
-			}
+			// if (isInitial) {
+			// 	updateEEData(get(currentLakeId), value, get(endDate));
+			// } else {
+			// 	updateEEData(get(currentLakeId), get(startDate), value);
+			// }
 		}}
 		type="date"
 		bind:value

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { EELayerType } from '$lib/mapData';
 	import { computingImages, currentLayerType } from '$lib/mapState';
+
 	let selectValue = $state<EELayerType>(EELayerType.FinalClassification);
 	let compute = $state(true);
 	computingImages.subscribe((val) => {
