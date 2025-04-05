@@ -30,7 +30,6 @@ export async function addLakeShapeToMap(lakeId: LakeCode, mapContainer: any): Pr
 	})
 }
 
-
 export function addEETileLayer(url: string, mapContainer: any) {
 	if (EEResponseTileData == null || EEResponseTileData == undefined) {
 		return
@@ -43,12 +42,14 @@ export function addEETileLayer(url: string, mapContainer: any) {
 	return geeTileLayer
 }
 
-export function updateEEData(lakeId: LakeCode, start: string, end: string) {
+export function updateEEData(lakeId: LakeCode, start: string, end: string, rgbVisParamMin: number, rgbVisParamMax: number) {
 	computingImages.set(true)
 	let GETParams = new URLSearchParams()
 	GETParams.append("AOIId", lakeId.toString())
 	GETParams.append("startDate", start)
 	GETParams.append("endDate", end)
+	GETParams.append("rgbMin", (rgbVisParamMin * 100).toString())
+	GETParams.append("rgbMax", (rgbVisParamMax * 100).toString())
 
 	fetch("/ee/tile?" + GETParams.toString()).then((data) => {
 		data.json().then((val: EEResponseData) => {

@@ -25,7 +25,7 @@
 	});
 </script>
 
-<div class="flex h-full flex-col justify-between">
+<div class="flex flex-col justify-between">
 	<div class="mb-1 px-2 text-sm text-black/50">
 		{#if isInitial}First Date
 		{:else}Second Date{/if}

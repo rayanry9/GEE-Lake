@@ -30,7 +30,7 @@ function getInfo(number: any): Promise<any> {
 	})
 }
 
-export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number): Promise<EEResponseData | null> {
+export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string, endDateUser: string, cloudCover: number, cloudCoverUser: number, rgbVisParamMin: number, rgbVisParamMax: number): Promise<EEResponseData | null> {
 
 	let responseData: EEResponseData = {
 		tile: new Array<Array<string>>(4),
@@ -93,6 +93,7 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 
 	Console.task("Started Computing Images Google Earth Engine")
 	try {
+		Console.info(rgbVisParamMin + " " + rgbVisParamMax)
 		allData = await Promise.all([
 			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(2)), dataVisParams),
 			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(3)), dataVisParams),
@@ -102,8 +103,8 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 			getMapId(initialClassification.updateMask(initialClassification.select('class').eq(3)), dataVisParams),
 			getMapId(initialClassification.updateMask(initialClassification.select('class').eq(4)), dataVisParams),
 			getMapId(initialClassification.updateMask(initialClassification.select('class').eq(5)), dataVisParams),
-			getMapId(startImage, rgbVisParams),
-			getMapId(recentImage, rgbVisParams),
+			getMapId(startImage, { min: rgbVisParamMin / 100, max: rgbVisParamMax / 100, bands: rgbVisParams.bands }),
+			getMapId(recentImage, { min: rgbVisParamMin / 100, max: rgbVisParamMax / 100, bands: rgbVisParams.bands }),
 			getMapId(fromWater, { min: 0, max: 1, palette: ['red'] }),
 			getMapId(toWater, { min: 0, max: 1, palette: ['green'] }),
 			//getInfo(ee.Number(fromWater.reduceRegion({ reducer: ee.Reducer.count(), geometry: AOI, scale: 10, maxPixels: 1e23 }).get('class')).multiply(0.01)),

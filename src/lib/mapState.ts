@@ -26,8 +26,9 @@ export let builtUpLayer = writable(false);
 export let vegetationLayer = writable(false);
 export let soilLayer = writable(false);
 export let waterLayer = writable(false);
+export let lakeShapeLayer = writable(true);
 
-export let computingImages = writable(true)
+export let computingImages = writable(false)
 
 export const mapOrigin = writable<any>()
 export const mapZoom = writable<any>()

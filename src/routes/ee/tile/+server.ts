@@ -41,6 +41,8 @@ export const GET: RequestHandler = async (req) => {
 	let AOIId = parseInt(params.get("AOIId")!) as LakeCode
 	let startDateUser = params.get("startDate")!.toString()
 	let endDateUser = params.get("endDate")!.toString()
+	let rgbVisParamMin = parseInt(params.get("rgbMin")!)
+	let rgbVisParamMax = parseInt(params.get("rgbMax")!)
 
 	let cloudCoverUser = 10
 
@@ -50,7 +52,7 @@ export const GET: RequestHandler = async (req) => {
 		resData = JSON.parse(getFromCache(req.url.searchParams.toString())) as EEResponseData
 	} else {
 		//resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser, indices)
-		resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser)
+		resData = await getAllFormatUrls(AOIId, startDateUser, endDateUser, cloudCover, cloudCoverUser, rgbVisParamMin, rgbVisParamMax)
 		if (resData != null) {
 			setInCache(req.url.searchParams.toString(), JSON.stringify(resData))
 		}

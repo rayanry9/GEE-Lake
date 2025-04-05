@@ -10,6 +10,7 @@
 		dateChangeObs,
 		EEResponseTileData,
 		getSudoMap,
+		lakeShapeLayer,
 		mapOrigin,
 		mapZoom,
 		setSudoMap,
@@ -32,6 +33,7 @@
 	let checkedVegetation = $state(false);
 	let checkedSoil = $state(false);
 	let checkedWater = $state(false);
+	let checkedLakeShape = $state(false);
 
 	let currLayer = $state<EELayerType>(0);
 	currentLayerType.subscribe((val) => {
@@ -95,8 +97,19 @@
 			}
 			addLakeShapeToMap(id, mapContainer).then((val) => {
 				localLakeShape = val;
+				checkedLakeShape = true;
 			});
 			eeResponseFunc();
+		});
+
+		lakeShapeLayer.subscribe((val) => {
+			if (val && localLakeShape != null) {
+				mapContainer.addLayer(localLakeShape);
+				checkedLakeShape = true;
+			} else if (localLakeShape != null) {
+				mapContainer.removeLayer(localLakeShape);
+				checkedLakeShape = false;
+			}
 		});
 
 		currentLayerType.subscribe(eeResponseFunc);
@@ -110,6 +123,7 @@
 		});
 
 		builtUpLayer.subscribe((val) => {
+			if (EEResponseTileData.length == 0) return;
 			checkedBuiltUp = val;
 			if (currLayer == EELayerType.FinalClassification) {
 				let currType = EELayerType.FinalClassification;
@@ -126,6 +140,7 @@
 			}
 		});
 		vegetationLayer.subscribe((val) => {
+			if (EEResponseTileData.length == 0) return;
 			checkedVegetation = val;
 			if (currLayer == EELayerType.FinalClassification) {
 				let currType = EELayerType.FinalClassification;
@@ -145,6 +160,7 @@
 			}
 		});
 		soilLayer.subscribe((val) => {
+			if (EEResponseTileData.length == 0) return;
 			checkedSoil = val;
 			if (currLayer == EELayerType.FinalClassification) {
 				let currType = EELayerType.FinalClassification;
@@ -161,6 +177,7 @@
 			}
 		});
 		waterLayer.subscribe((val) => {
+			if (EEResponseTileData.length == 0) return;
 			checkedWater = val;
 			if (currLayer == EELayerType.FinalClassification) {
 				let currType = EELayerType.FinalClassification;
@@ -261,8 +278,26 @@
 
 		<div class="flex flex-col space-y-3 *:items-center *:space-x-3">
 			<div class="flex flex-row">
+				<div class="size-5 !bg-white"></div>
+				<p class="grow">Boundary</p>
+				{#if currLayer == EELayerType.FinalClassification}
+					<input
+						oninput={(ev: any) => {
+							if (ev.target.checked) {
+								lakeShapeLayer.set(true);
+							} else {
+								lakeShapeLayer.set(false);
+							}
+						}}
+						class=""
+						bind:checked={checkedLakeShape}
+						type="checkbox"
+					/>
+				{/if}
+			</div>
+			<div class="flex flex-row">
 				<div class="size-5 !bg-[#A0522D]"></div>
-				<p class="grow">Built Up</p>
+				<p class="grow">Soil</p>
 				{#if currLayer == EELayerType.FinalClassification}
 					<input
 						oninput={(ev: any) => {
@@ -289,7 +324,7 @@
 			</div>
 			<div class="flex flex-row">
 				<div class="size-5 !bg-[#FFA500]"></div>
-				<p class="grow">Soil</p>
+				<p class="grow">Built Up</p>
 				{#if currLayer == EELayerType.FinalClassification}
 					<input
 						oninput={(ev: any) => {
