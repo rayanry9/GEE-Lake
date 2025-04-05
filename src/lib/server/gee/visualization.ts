@@ -93,7 +93,6 @@ export async function getAllFormatUrls(AOIcode: LakeCode, startDateUser: string,
 
 	Console.task("Started Computing Images Google Earth Engine")
 	try {
-		Console.info(rgbVisParamMin + " " + rgbVisParamMax)
 		allData = await Promise.all([
 			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(2)), dataVisParams),
 			getMapId(finalClassification.updateMask(finalClassification.select('class').eq(3)), dataVisParams),
